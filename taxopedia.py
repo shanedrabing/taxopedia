@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 
 import pandas as pd
 
+from tqdm import tqdm
 from constants import RANK
 from taxonomic_trees import Tree
 from async_utils import run_requests, divide_chunks
@@ -159,7 +160,7 @@ def search(search_term, comprehensive=False):
 
         # how many links do we have to check?
         print("To check:", len(urls))
-        for subset in divide_chunks(urls, 50):
+        for subset in tqdm(list(divide_chunks(urls, 50))):
             # have seen these links
             links_dict["seen"] |= set(subset)
 
@@ -184,7 +185,7 @@ if __name__ == "__main__":
 
     # scrape
     TAXA = "Canidae"
-    links_dict = search(TAXA, False)
+    links_dict = search(TAXA, True)
 
     # link
     if not os.path.exists(TAXA):
@@ -282,4 +283,5 @@ if __name__ == "__main__":
 
     # explore
     tree = Tree.from_csv(f"{TAXA}.csv")
+    tree.view()
     tree.to_csv(f"{TAXA}_full.csv")

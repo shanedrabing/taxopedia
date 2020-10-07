@@ -4,8 +4,7 @@ import csv
 import itertools
 import subprocess
 
-from constants import RANK
-from color_console import COLORS
+from constants import RANK, COLORS
 
 
 class Tree:
