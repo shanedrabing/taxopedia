@@ -3,26 +3,9 @@ import re
 import csv
 import itertools
 import subprocess
+
+from constants import RANK
 from color_console import COLORS
-
-
-RANK = [
-    "Rank", "Common Name", "Domain", "Subdomain", "Realm", "Subrealm",
-    "Hyperkingdom", "Superkingdom", "Kingdom", "Subkingdom", "Infrakingdom",
-    "Parvkingdom", "Superphylum", "Phylum", "Subphylum", "Infraphylum",
-    "Microphylum", "Superclass", "Class", "Subclass", "Infraclass",
-    "Parvclass", "Superdivision", "Division", "Subdivision", "Infradivision",
-    "Superlegion", "Legion", "Sublegion", "Infralegion", "Supercohort",
-    "Cohort", "Subcohort", "Infracohort", "Gigaorder", "Magnorder",
-    "Grandorder", "Mirorder", "Superorder", "Series", "Order", "Parvorder",
-    "Nanorder", "Hypoorder", "Minorder", "Suborder", "Infraorder",
-    "Parvorder", "Section", "Subsection", "Gigafamily", "Megafamily",
-    "Grandfamily", "Hyperfamily", "Superfamily", "Epifamily", "Series",
-    "Group", "Family", "Subfamily", "Infrafamily", "Supertribe", "Tribe",
-    "Subtribe", "Infratribe", "Genus", "Subgenus", "Section", "Subsection",
-    "Series", "Subseries", "Superspecies", "Species", "Subspecies",
-    "Variety", "Subvariety", "Form", "Subform"
-]
 
 
 class Tree:
@@ -54,7 +37,7 @@ class Tree:
         return {self.label: [c.__dict__() for c in self.children]}
 
     def __list__(self):
-        print([(k, v) for k, v in self.get_parents()])
+        # print([(k, v) for k, v in self.get_parents()])
         dict_ = {k: v for k, v in self.get_parents()}
         dict_["Rank"] = self.rank
         if self.name:

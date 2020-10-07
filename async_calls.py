@@ -22,6 +22,12 @@ class Mem:
     def __init__(self):
         pass
 
+    def __str__(self):
+        return "\n".join(
+            attr + " : " + str(getattr(self, attr))
+            for attr in filter(lambda x: x.strip("_") == x, dir(self))
+        )
+
 
 def grab_href(tag):
     try:
@@ -64,38 +70,11 @@ async def fetch_html(url, session):
         trials += 1
 
 
-async def make_requests(urls):
+async def make_requests(urls, mem):
     async with ClientSession() as session:
         tasks = [fetch_html(url=url, session=session) for url in urls]
         results = await asyncio.gather(*tasks)
 
-    first = True
-    for url, html in filter(bool, results):
-        if TAXA not in html or "biota" not in html:
-            print(".", end="")
-            continue
-
-        soup = BeautifulSoup(html, "lxml")
-        box = soup.select_one(".biota")
-
-        if box is None or TAXA not in str(box):
-            print(".", end="")
-            continue
-
-        url = url[len(mem.root):]
-
-        if not first:
-            print()
-        else:
-            first = False
-        print(url, end="")
-
-        mem.updated = True
-        body = soup.select_one("#content")
-        mem.biota_links.add(url)
-
-        mem.all_links |= set(
-            filter(bool, map(grab_href, box.select("a") + body.select("a"))))
     print()
 
 
@@ -110,8 +89,11 @@ def dump_set(filename, set_):
 
 
 def load_set(filename):
-    with open(filename) as f:
-        return set(f.read().split("\n"))
+    try:
+        with open(filename) as f:
+            return set(f.read().split("\n"))
+    except FileNotFoundError:
+        return set()
 
 
 if __name__ == "__main__":
