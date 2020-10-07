@@ -75,8 +75,6 @@ async def make_requests(urls, mem):
         tasks = [fetch_html(url=url, session=session) for url in urls]
         results = await asyncio.gather(*tasks)
 
-    print()
-
 
 def divide_chunks(lst, length):
     for index in range(0, len(lst), length):
