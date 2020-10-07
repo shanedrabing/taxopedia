@@ -16,36 +16,62 @@ PATTERN = re.compile(r"(/wiki/\w+:)")
 # FUNCTIONS
 
 
-def load_set(filename):
+def load_dict(search_term):
     try:
-        with open(filename) as f:
-            return set(f.read().split("\n"))
-    except FileNotFoundError:
-        return set()
-
-
-def dump_set(filename, set_):
-    with open(filename, "w") as f:
-        f.write("\n".join(map(str, set_)))
-
-
-def load_dict(filename):
-    try:
-        with open(filename, "rb") as f:
+        with open(search_term + ".search", "rb") as f:
             return pickle.load(f)
     except FileNotFoundError:
         return {
             "root": "https://en.wikipedia.org/wiki/",
-            "all": load_set("dump_all.txt"),
-            "seen": load_set("dump_seen.txt"),
-            "biota": load_set("dump_biota.txt"),
-            "cleaned": set()
+            "all": set(),
+            "seen": set(),
+            "biota": set(),
+            "cleaned": set(),
+            "search_term": search_term,
         }
 
 
-def dump_dict(filename, dict_):
-    with open(filename, "wb") as f:
+def dump_dict(search_term, dict_):
+    with open(search_term + ".search", "wb") as f:
         pickle.dump(dict_, f)
+
+
+def per_result(result, links_dict):
+    # expand result
+    url, status, html = result
+
+    # filter out pages:
+    # without a biota box
+    if "biota" not in html:
+        return
+
+    # parse the page
+    soup = BeautifulSoup(html, "lxml")
+
+    # find the biota box
+    box = soup.select_one(".biota")
+
+    # filter out boxes:
+    # without mention of search term
+    if box is None or links_dict["search_term"] not in str(box):
+        return
+
+    # remove root from extension
+    url = url[len(links_dict["root"]):]
+
+    body = soup.select_one("#content")
+    links_dict["biota"].add(url)
+
+    to_check = box.select("a")
+    if links_dict["comprehensive"]:
+        to_check += body.select("a")
+
+    new_links = set()
+    for link in to_check:
+        href = grab_href(link, links_dict)
+        if href:
+            new_links.add(href)
+    links_dict["all"] |= new_links
 
 
 def grab_href(tag, links_dict):
@@ -77,18 +103,13 @@ def grab_href(tag, links_dict):
         return
 
 
-if __name__ == "__main__":
-    assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
-
-    # use-defined parameters
-    TAXA = "Canidae"
-    COMPREHENSIVE = False
-
+def search(search_term, comprehensive=False):
     # keep a dictionary of links
-    links_dict = load_dict(TAXA)
+    links_dict = load_dict(search_term)
+    links_dict["comprehensive"] = comprehensive
 
     # if nothing loaded, make sure to start with search term
-    links_dict["all"].add(TAXA)
+    links_dict["all"].add(search_term)
 
     # find remaining links
     links_dict["remaining"] = links_dict["all"] - links_dict["seen"]
@@ -105,64 +126,26 @@ if __name__ == "__main__":
 
             # add root to extension
             subset = (links_dict["root"] + x for x in subset)
-
-            first = True
-            for url, status, html in run_requests(subset):
-                # filter out pages:
-                # without a biota box
-                if "biota" not in html:
-                    print(".", end="")
-                    continue
-
-                # parse the page
-                soup = BeautifulSoup(html, "lxml")
-
-                # find the biota box
-                box = soup.select_one(".biota")
-
-                # filter out boxes:
-                # without mention of search term
-                if box is None or TAXA not in str(box):
-                    print(".", end="")
-                    continue
-
-                # remove root from extension
-                url = url[len(links_dict["root"]):]
-
-                if not first:
-                    print()
-                else:
-                    first = False
-                print(url, end="")
-
-                body = soup.select_one("#content")
-                links_dict["biota"].add(url)
-
-                to_check = box.select("a")
-                if COMPREHENSIVE:
-                    to_check += body.select("a")
-
-                new_links = set()
-                for link in to_check:
-                    href = grab_href(link, links_dict)
-                    if href:
-                        new_links.add(href)
-                links_dict["all"] |= new_links
-            print()
+            for result in run_requests(subset):
+                per_result(result, links_dict)
 
             # save the dictionary
-            dump_dict(TAXA, links_dict)
+            dump_dict(search_term, links_dict)
 
         # update remaining links
         links_dict["remaining"] = links_dict["all"] - links_dict["seen"]
 
     # how many links did we check?
     print("Total checked:", len(links_dict["seen"]))
+    return links_dict
 
-    pprint(links_dict)
 
-    # filename = f"{TAXA}_{dt.strftime(dt.now(), '%Y%m%dT%H%M%S')}.txt"
-    # filename = TAXA + ".txt"
+if __name__ == "__main__":
+    assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
 
-    # with open(filename, "w") as f:
-    #     f.write("\n".join(sorted(links_dict["biota"])))
+    # scrape
+    links_dict = search("Canidae", False)
+
+    # link
+
+    # explore
