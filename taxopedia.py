@@ -8,29 +8,13 @@ from bs4 import BeautifulSoup
 
 import pandas as pd
 
+from constants import RANK
+from taxonomic_trees import Tree
 from async_utils import run_requests, divide_chunks
 
 
 # CONSTANTS
 
-
-RANK = [
-    "Rank", "Common Name", "Domain", "Subdomain", "Realm", "Subrealm",
-    "Hyperkingdom", "Superkingdom", "Kingdom", "Subkingdom", "Infrakingdom",
-    "Parvkingdom", "Superphylum", "Phylum", "Subphylum", "Infraphylum",
-    "Microphylum", "Superclass", "Class", "Subclass", "Infraclass",
-    "Parvclass", "Superdivision", "Division", "Subdivision", "Infradivision",
-    "Superlegion", "Legion", "Sublegion", "Infralegion", "Supercohort",
-    "Cohort", "Subcohort", "Infracohort", "Gigaorder", "Magnorder",
-    "Grandorder", "Mirorder", "Superorder", "Series", "Order", "Parvorder",
-    "Nanorder", "Hypoorder", "Minorder", "Suborder", "Infraorder",
-    "Parvorder", "Section", "Subsection", "Gigafamily", "Megafamily",
-    "Grandfamily", "Hyperfamily", "Superfamily", "Epifamily", "Series",
-    "Group", "Family", "Subfamily", "Infrafamily", "Supertribe", "Tribe",
-    "Subtribe", "Infratribe", "Genus", "Subgenus", "Section", "Subsection",
-    "Series", "Subseries", "Superspecies", "Species", "Subspecies",
-    "Variety", "Subvariety", "Form", "Subform"
-]
 
 RANK_SET = set(RANK)
 
@@ -297,3 +281,5 @@ if __name__ == "__main__":
     df.to_csv(wd_join(f"{TAXA}.csv"), index=False)
 
     # explore
+    tree = Tree.from_csv(f"{TAXA}.csv")
+    tree.to_csv(f"{TAXA}_full.csv")
