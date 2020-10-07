@@ -1,16 +1,18 @@
+import os
 import re
 import sys
 import pickle
+import unicodedata
 from pprint import pprint
 from bs4 import BeautifulSoup
+
+import pandas as pd
 
 from async_utils import run_requests, divide_chunks
 
 
 # CONSTANTS
 
-
-PATTERN = re.compile(r"(/wiki/\w+:)")
 
 RANK = [
     "Rank", "Common Name", "Domain", "Subdomain", "Realm", "Subrealm",
@@ -30,8 +32,41 @@ RANK = [
     "Variety", "Subvariety", "Form", "Subform"
 ]
 
+RANK_SET = set(RANK)
+
 
 # FUNCTIONS
+
+
+def wd_join(*args):
+    return os.path.join(sys.path[0], *args)
+
+
+def my_normalize(word):
+    return unicodedata.normalize("NFKC", word)
+
+
+def key_sort(key):
+    try:
+        return RANK.index(key)
+    except ValueError:
+        return float("inf")
+
+
+def rank_sort(row):
+    return RANK.index(row["Rank"])
+
+
+def dedupe(iterable, *, key=None):
+    seen = set()
+    for x in iterable:
+        if key:
+            proxy = key(x)
+        else:
+            proxy = x
+        if proxy not in seen:
+            yield x
+            seen.add(proxy)
 
 
 def load_dict(search_term):
@@ -93,6 +128,8 @@ def per_result(result, links_dict):
 
 
 def grab_href(tag, links_dict):
+    PATTERN = re.compile(r"(/wiki/\w+:)")
+
     try:
         href = tag["href"]
 
@@ -162,8 +199,101 @@ if __name__ == "__main__":
     assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
 
     # scrape
-    links_dict = search("Canidae", False)
+    TAXA = "Canidae"
+    links_dict = search(TAXA, False)
 
     # link
+    if not os.path.exists(TAXA):
+        os.makedirs(TAXA)
+
+    urls = [
+        "https://en.wikipedia.org/wiki/" + extension
+        for extension in links_dict["biota"]
+        if not os.path.exists(os.path.join(TAXA, extension + ".html"))
+    ]
+
+    for subset in divide_chunks(urls, 50):
+        results = run_requests(subset)
+
+        for url, status, html in results:
+            filename = url.split("/")[-1] + ".html"
+            print("Now parsing:", filename)
+            soup = BeautifulSoup(html, "lxml")
+            text = soup.select_one(".biota")
+
+            with open(os.path.join(TAXA, filename), "w") as f:
+                f.write(str(text))
+
+    files = os.listdir(os.path.join(TAXA))
+
+    htmls = []
+    for fname in files:
+        with open(os.path.join(TAXA, fname)) as f:
+            html = f.read()
+            if "Ancestral taxa" in html:
+                os.remove(os.path.join(TAXA, fname))
+            else:
+                htmls.append(html)
+
+    pattern = re.compile(r"(>(.*?)<)")
+
+    data = []
+    for html in htmls:
+        soup = BeautifulSoup(html, "lxml")
+
+        traits = []
+        for x in soup.find("tbody").children:
+            try:
+                _, matches = iter(
+                    zip(*pattern.findall(" ".join(str(x).split()))))
+                matches = map(str.strip, matches)
+                traits += iter(map(my_normalize, filter(bool, matches)))
+            except AttributeError:
+                pass
+            except ValueError:
+                pass
+
+        try:
+            my_index = traits.index("Scientific classification")
+        except ValueError:
+            my_index = -1
+
+        dictionary = {"Common Name": traits[0]}
+
+        prev = ""
+        order = ["Common Name"]
+
+        iterator = iter(traits[1 + my_index:])
+        for curr in iterator:
+            if prev.istitle() and prev.endswith(":"):
+                prev = prev.rstrip(":")
+                if prev not in RANK_SET:
+                    continue
+
+                if curr == "†":
+                    curr += next(iterator)
+                dictionary[prev] = curr
+                order.append(prev)
+            prev = curr
+
+        dictionary["Rank"] = order[-1]
+        if order[-1] == "Species":
+            try:
+                sp = dictionary["Species"]
+                gn = dictionary["Genus"]
+                dictionary["Species"] = sp.replace(gn[0] + ".", gn)
+            except KeyError:
+                pass
+        data.append(dictionary)
+
+    all_keys = sorted(
+        set(key for line in data for key in line.keys()),
+        key=key_sort
+    )
+
+    data.sort(key=rank_sort)
+
+    df = pd.DataFrame(dedupe(data, key=repr))[all_keys]
+    df.to_csv(wd_join(f"{TAXA}.csv"), index=False)
 
     # explore
