@@ -297,8 +297,8 @@ if __name__ == "__main__":
     assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
 
     # scrape the data
-    TAXA = "Mephitidae"
-    links_dict = search(TAXA, comprehensive=True)
+    TAXA = "Hominidae"
+    links_dict = search(TAXA, comprehensive=False)
 
     # link the pages
     csv_name = f"{TAXA}.csv"
