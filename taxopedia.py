@@ -3,12 +3,11 @@ import re
 import sys
 import pickle
 import unicodedata
-from pprint import pprint
-from bs4 import BeautifulSoup
 
 import pandas as pd
-
 from tqdm import tqdm
+from bs4 import BeautifulSoup
+
 from constants import RANK
 from wiki_tree import WikiTree
 from async_utils import run_requests, divide_chunks
