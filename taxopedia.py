@@ -197,12 +197,12 @@ if __name__ == "__main__":
         if not os.path.exists(os.path.join(TAXA, extension + ".html"))
     ]
 
-    for subset in divide_chunks(urls, 50):
+    for subset in tqdm(list(divide_chunks(urls, 50))):
         results = run_requests(subset)
 
         for url, status, html in results:
             filename = url.split("/")[-1] + ".html"
-            print("Now parsing:", filename)
+            # print("Now parsing:", filename)
             soup = BeautifulSoup(html, "lxml")
             text = soup.select_one(".biota")
 
