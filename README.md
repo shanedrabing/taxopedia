@@ -1,12 +1,8 @@
----
-Author: Shane Drabing
----
-
 # Taxopedia
 
 Build taxonomic trees (cladograms) from Wikipedia-scraped data.
 
-Example Usage:
+## Example Usage
 
 ```python
 # scrape the data
@@ -22,7 +18,7 @@ tree.view()
 tree.to_csv(f"{TAXA}_full.csv")  # saves a filled in version
 ```
 
-Example Output:
+## Example Output
 
 ```txt
 Kingdom : Animalia
