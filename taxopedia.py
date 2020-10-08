@@ -75,6 +75,9 @@ def dump_dict(search_term, dict_):
 
 
 def per_result(result, links_dict):
+    if result is None:
+        return
+
     # expand result
     url, status, html = result
 
@@ -150,6 +153,10 @@ def search(search_term, comprehensive=False):
 
     # if nothing loaded, make sure to start with search term
     links_dict["all"].add(search_term)
+    try:
+        links_dict["seen"].remove(search_term)
+    except KeyError:
+        pass
 
     # find remaining links
     links_dict["remaining"] = links_dict["all"] - links_dict["seen"]
@@ -283,13 +290,13 @@ if __name__ == "__main__":
     assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
 
     # scrape the data
-    TAXA = "Hominidae"
-    links_dict = search(TAXA, comprehensive=False)
+    TAXA = "Felinae"
+    links_dict = search(TAXA, comprehensive=True)
 
     # # link the pages
     data = linker(TAXA)
 
-    # explore the tree
+    # explore tqhe tree
     tree = Tree.from_csv(f"{TAXA}.csv")  # load from a slim version
     tree.view()
     tree.to_txt(f"{TAXA}.txt", with_color=False)

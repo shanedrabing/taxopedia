@@ -258,16 +258,3 @@ class Tree:
         root = nodes[root_key]
 
         return root
-
-
-if __name__ == "__main__":
-    animalia = Tree.from_csv("Mammalia.csv")
-
-    animalia.prune(rank="Family", includes=re.compile(r"\bCanidae\b", re.I))
-    print(animalia.from_pov("C. lupus"))
-    # animalia.view()
-    # animalia.search(r"\bbat\b", case_insensitive=True)
-    animalia.to_csv("output.csv")
-
-    with open("output.txt", "w") as f:
-        f.write(animalia.pretty_str(with_color=False))
