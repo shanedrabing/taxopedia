@@ -124,7 +124,7 @@ class Tree:
             if response:
                 return response + [self.exclude_child(child)]
 
-    def pretty_str(self, fix="", child_fix="", length=2, with_color=True):
+    def pretty_str(self, fix="", child_fix="", length=2, with_color=False):
         ordinal = self.sorted_children
 
         if with_color:
@@ -157,16 +157,17 @@ class Tree:
 
         return string
 
-    def to_txt(self, filename=None, with_color=True):
+    def to_txt(self, filename=None, with_color=False):
         if filename is None:
             filename = f"{self.rank}_{self.label}.txt"
         with open(filename, "w") as f:
             f.write(self.pretty_str(with_color=with_color))
         return filename
 
-    def view(self, with_color=True):
+    def view(self, with_color=False):
         filename = self.to_txt(with_color=with_color)
         subprocess.run(["less", "-R", filename])
+        subprocess.run(["rm", filename])
 
     def search(self, term, case_insensitive=False, all_results=True):
         if case_insensitive:

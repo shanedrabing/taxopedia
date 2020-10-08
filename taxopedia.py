@@ -187,8 +187,13 @@ def search(search_term, comprehensive=False):
     return links_dict
 
 
-def linker(search_term):
-    links_dict = load_dict(search_term)
+def linker(search_or_dict, filename=None):
+    if type(search_or_dict) is dict:
+        links_dict = search_or_dict
+        search_term = search_or_dict["search_term"]
+    else:
+        search_term = search_or_dict
+        links_dict = load_dict(search_term)
 
     if not os.path.exists(search_term):
         os.makedirs(search_term)
@@ -203,12 +208,12 @@ def linker(search_term):
         results = run_requests(subset)
 
         for url, status, html in results:
-            filename = url.split("/")[-1] + ".html"
-            # print("Now parsing:", filename)
+            temp_filename = url.split("/")[-1] + ".html"
+            # print("Now parsing:", temp_filename)
             soup = BeautifulSoup(html, "lxml")
             text = soup.select_one(".biota")
 
-            with open(os.path.join(search_term, filename), "w") as f:
+            with open(os.path.join(search_term, temp_filename), "w") as f:
                 f.write(str(text))
 
     files = os.listdir(os.path.join(search_term))
@@ -281,7 +286,9 @@ def linker(search_term):
     data.sort(key=rank_sort)
 
     df = pd.DataFrame(dedupe(data, key=repr))[all_keys]
-    df.to_csv(wd_join(f"{search_term}.csv"), index=False)
+    if filename is None:
+        filename = f"{search_term}.csv"
+    df.to_csv(wd_join(filename), index=False)
 
     return data
 
@@ -290,14 +297,17 @@ if __name__ == "__main__":
     assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
 
     # scrape the data
-    TAXA = "Felinae"
+    TAXA = "Mephitidae"
     links_dict = search(TAXA, comprehensive=True)
 
-    # # link the pages
-    data = linker(TAXA)
+    # link the pages
+    csv_name = f"{TAXA}.csv"
+    data = linker(links_dict, filename=csv_name)
 
-    # explore tqhe tree
-    tree = Tree.from_csv(f"{TAXA}.csv")  # load from a slim version
-    tree.view()
-    tree.to_txt(f"{TAXA}.txt", with_color=False)
-    tree.to_csv(f"{TAXA}_full.csv")  # saves a filled in version
+    # explore the tree
+    tree = Tree.from_csv(csv_name)  # load from a slim CSV
+    tree.view(with_color=True)  # view in color console (UNIX, VS Code)
+
+    # export to file
+    tree.to_csv(f"{TAXA}_full.csv")  # saves a filled-in CSV
+    tree.to_txt(f"{TAXA}.txt")  # saves a dendrogram
