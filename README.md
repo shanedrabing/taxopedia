@@ -7,7 +7,7 @@ Build taxonomic trees (cladograms) from Wikipedia-scraped data.
 ```python
 # scrape the data
 TAXA = "Hominidae"
-links_dict = search(TAXA, comprehensive=True)
+links_dict = search(TAXA, comprehensive=False)
 
 # link the pages
 csv_name = f"{TAXA}.csv"
