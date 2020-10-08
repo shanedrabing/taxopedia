@@ -70,7 +70,7 @@ class WikiTree:
 
     def get_num_children(self):
         num = len(self.children)
-        num += sum(map(Tree.get_num_children, self.children))
+        num += sum(map(WikiTree.get_num_children, self.children))
         return num
 
     def prune(self, rank, includes):
@@ -107,7 +107,7 @@ class WikiTree:
 
     def exclude_child(self, child):
         new_children = [x for x in self.children if x.label != child.label]
-        return Tree(self.label, new_children)
+        return WikiTree(self.label, new_children)
 
     def path_to_root(self, from_node):
         path = self.recursive_rooter(from_node)
@@ -205,7 +205,7 @@ class WikiTree:
 
     @staticmethod
     def connect(child, parent):
-        if isinstance(child, Tree) and isinstance(parent, Tree):
+        if isinstance(child, WikiTree) and isinstance(parent, WikiTree):
             to_change = False
             if not child.parent:
                 to_change = True
@@ -220,7 +220,7 @@ class WikiTree:
                 child.parent = parent
                 parent.add_child(child)
         else:
-            raise ValueError("child and parent must be Tree")
+            raise ValueError("child and parent must be WikiTree")
 
     @staticmethod
     def from_csv(filename):
@@ -239,12 +239,12 @@ class WikiTree:
                     # add child not if not in nodes
                     if child_key not in nodes:
                         rank, label = child_key
-                        node = Tree(label, rank)
-                        nodes[child_key] = Tree(label, rank)
+                        node = WikiTree(label, rank)
+                        nodes[child_key] = WikiTree(label, rank)
 
                     # link child to parent
                     if parent_key in nodes:
-                        Tree.connect(nodes[child_key], nodes[parent_key])
+                        WikiTree.connect(nodes[child_key], nodes[parent_key])
 
                     # copy current key to previous key
                     parent_key = child_key
