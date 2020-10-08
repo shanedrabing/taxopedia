@@ -176,25 +176,20 @@ def search(search_term, comprehensive=False):
         links_dict["remaining"] = links_dict["all"] - links_dict["seen"]
 
     # how many links did we check?
-    print("Total checked:", len(links_dict["seen"]))
+    print("Total links:", len(links_dict["seen"]))
     return links_dict
 
 
-if __name__ == "__main__":
-    assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
+def linker(search_term):
+    links_dict = load_dict(search_term)
 
-    # scrape
-    TAXA = "Canidae"
-    links_dict = search(TAXA, True)
-
-    # link
-    if not os.path.exists(TAXA):
-        os.makedirs(TAXA)
+    if not os.path.exists(search_term):
+        os.makedirs(search_term)
 
     urls = [
         "https://en.wikipedia.org/wiki/" + extension
         for extension in links_dict["biota"]
-        if not os.path.exists(os.path.join(TAXA, extension + ".html"))
+        if not os.path.exists(os.path.join(search_term, extension + ".html"))
     ]
 
     for subset in tqdm(list(divide_chunks(urls, 50))):
@@ -206,17 +201,17 @@ if __name__ == "__main__":
             soup = BeautifulSoup(html, "lxml")
             text = soup.select_one(".biota")
 
-            with open(os.path.join(TAXA, filename), "w") as f:
+            with open(os.path.join(search_term, filename), "w") as f:
                 f.write(str(text))
 
-    files = os.listdir(os.path.join(TAXA))
+    files = os.listdir(os.path.join(search_term))
 
     htmls = []
     for fname in files:
-        with open(os.path.join(TAXA, fname)) as f:
+        with open(os.path.join(search_term, fname)) as f:
             html = f.read()
             if "Ancestral taxa" in html:
-                os.remove(os.path.join(TAXA, fname))
+                os.remove(os.path.join(search_term, fname))
             else:
                 htmls.append(html)
 
@@ -279,9 +274,22 @@ if __name__ == "__main__":
     data.sort(key=rank_sort)
 
     df = pd.DataFrame(dedupe(data, key=repr))[all_keys]
-    df.to_csv(wd_join(f"{TAXA}.csv"), index=False)
+    df.to_csv(wd_join(f"{search_term}.csv"), index=False)
 
-    # explore
+    return data
+
+
+if __name__ == "__main__":
+    assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
+
+    # scrape the data
+    TAXA = "Hominidae"
+    links_dict = search(TAXA, comprehensive=False)
+
+    # link the pages
+    data = linker(TAXA)
+
+    # explore the tree
     tree = Tree.from_csv(f"{TAXA}.csv")
     tree.view()
     tree.to_csv(f"{TAXA}_full.csv")
