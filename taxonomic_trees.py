@@ -157,14 +157,13 @@ class Tree:
 
         return string
 
-    def to_txt(self):
-        filename = f"{self.rank}_{self.label}.txt"
+    def to_txt(self, filename, with_color=True):
+        print(filename)
         with open(filename, "w") as f:
-            f.write(self.pretty_str())
-        return filename
+            f.write(self.pretty_str(with_color=with_color))
 
-    def view(self):
-        filename = self.to_txt()
+    def view(self, with_color=True):
+        filename = self.to_txt(with_color=with_color)
         subprocess.run(["less", "-R", filename])
 
     def search(self, term, case_insensitive=False, all_results=True):

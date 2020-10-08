@@ -6,7 +6,7 @@ Author: Shane Drabing
 
 Build taxonomic trees (cladograms) from Wikipedia-scraped data.
 
-Example usage:
+Example Usage:
 
 ```python
 # scrape the data
@@ -21,6 +21,8 @@ tree = Tree.from_csv(f"{TAXA}.csv")  # load from a slim version
 tree.view()
 tree.to_csv(f"{TAXA}_full.csv")  # saves a filled in version
 ```
+
+Example Output:
 
 ```txt
 Kingdom : Animalia
@@ -71,8 +73,77 @@ Kingdom : Animalia
                                             │   │   │   │       ├── Species : †P. aethiopicus
                                             │   │   │   │       ├── Species : †P. boisei
                                             │   │   │   │       └── Species : †P. robustus
+                                            │   │   │   ├── Subtribe : Panina
+                                            │   │   │   │   └── Genus : Pan (Chimpanzees and bonobos)
+                                            │   │   │   │       ├── Species : P. troglodytes
+                                            │   │   │   │       │   ├── Subspecies : P. t. ellioti (Nigeria-Cameroon chimpanzee)
+                                            │   │   │   │       │   ├── Subspecies : P. t. schweinfurthii (Eastern chimpanzee)
+                                            │   │   │   │       │   ├── Subspecies : P. t. troglodytes (Central chimpanzee)
+                                            │   │   │   │       │   └── Subspecies : P. t. verus (Western chimpanzee)
+                                            │   │   │   │       ├── Species : Pan paniscus (Bonobo)
+                                            │   │   │   │       └── Species : Pan troglodytes (Chimpanzee)
+                                            │   │   │   ├── Subtribe : Hominina
+                                            │   │   │   │   └── Genus : †Ardipithecus
+                                            │   │   │   │       ├── Species : †A. kadabba
+                                            │   │   │   │       └── Species : †A. ramidus
+                                            │   │   │   ├── Genus : †Orrorin
+                                            │   │   │   │   └── Species : †O. tugenensis (Orrorin)
+                                            │   │   │   └── Genus : †Kenyanthropus
+                                            │   │   ├── Tribe : Gorillini
+                                            │   │   │   ├── Genus : Gorilla
+                                            │   │   │   │   ├── Species : G. beringei
+                                            │   │   │   │   │   ├── Subspecies : G. b. beringei (Mountain gorilla)
+                                            │   │   │   │   │   └── Subspecies : G. b. graueri (Eastern lowland gorilla)
+                                            │   │   │   │   ├── Species : G. gorilla
+                                            │   │   │   │   │   ├── Subspecies : G. g. diehli (Cross River gorilla)
+                                            │   │   │   │   │   └── Subspecies : G. g. gorilla
+                                            │   │   │   │   ├── Species : Gorilla beringei (Eastern gorilla)
+                                            │   │   │   │   └── Species : Gorilla gorilla
+                                            │   │   │   └── Genus : †Chororapithecus
+                                            │   │   │       └── Species : †C. abyssinicus (Chororapithecus)
+                                            │   │   └── Tribe : †Graecopithecini
+                                            │   │       ├── Genus : †Ouranopithecus
+                                            │   │       │   ├── Species : †O. macedoniensis
+                                            │   │       │   └── Species : †O. turkae
+                                            │   │       └── Genus : †Graecopithecus
+                                            │   ├── Subfamily : Ponginae
+                                            │   │   ├── Tribe : †Sivapithecini
+                                            │   │   │   ├── Genus : †Ankarapithecus
+                                            │   │   │   │   └── Species : †A. meteai (Ankarapithecus)
+                                            │   │   │   ├── Genus : †Gigantopithecus
+                                            │   │   │   │   └── Species : †G. blacki (Gigantopithecus)
+                                            │   │   │   └── Genus : †Sivapithecus
+                                            │   │   ├── Genus : Pongo (Orangutans)
+                                            │   │   │   ├── Species : Pongo abelii (Sumatran orangutan)
+                                            │   │   │   ├── Species : Pongo pygmaeus (Bornean orangutan)
+                                            │   │   │   ├── Species : Pongo tapanuliensis (Tapanuli orangutan)
+                                            │   │   │   └── Species : †Pongo hooijeri
+                                            │   │   └── Tribe : Pongini
+                                            │   │       └── Genus : †Khoratpithecus
+                                            │   ├── Subfamily : †Dryopithecinae
+                                            │   │   ├── Tribe : †Kenyapithecini
+                                            │   │   │   ├── Genus : †Griphopithecus
+                                            │   │   │   │   ├── Species : †G. alpani
+                                            │   │   │   │   └── Species : †G. suessi
+                                            │   │   │   └── Genus : †Kenyapithecus
+                                            │   │   │       └── Species : †K. wickeri
+                                            │   │   └── Tribe : †Afropithecini
+                                            │   │       └── Genus : †Otavipithecus
+                                            │   │           └── Species : †O. namibiensis (Otavipithecus)
+                                            │   ├── Tribe : †Dryopithecini
+                                            │   │   ├── Genus : †Anoiapithecus
+                                            │   │   │   └── Species : †A. brevirostris (Anoiapithecus)
+                                            │   │   ├── Genus : †Danuvius
+                                            │   │   │   └── Species : †D. guggenmosi
+                                            │   │   ├── Genus : †Rudapithecus
+                                            │   │   │   └── Species : †R. hungaricus (Rudapithecus)
+                                            │   │   └── Genus : †Dryopithecus
+                                            │   ├── Subfamily : incertae sedis
+                                            │   │   └── Genus : †Sahelanthropus
+                                            │   │       └── Species : †S. tchadensis
+                                            │   ├── Genus : †Nakalipithecus
+                                            │   │   └── Species : †N. nakayamai (Nakalipithecus)
+                                            │   └── Tribe : †Lufengpithecini
+                                            │       └── Genus : †Lufengpithecus
+                                            └── Family : Hylobatidae (Gibbons)
 ```
-
-Example Output
-
-![console_view.png](docs/console_view_bw.png)
