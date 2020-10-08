@@ -290,6 +290,6 @@ if __name__ == "__main__":
     data = linker(TAXA)
 
     # explore the tree
-    tree = Tree.from_csv(f"{TAXA}.csv")
+    tree = Tree.from_csv(f"{TAXA}.csv")  # load from a slim version
     tree.view()
-    tree.to_csv(f"{TAXA}_full.csv")
+    tree.to_csv(f"{TAXA}_full.csv")  # saves a filled in version
