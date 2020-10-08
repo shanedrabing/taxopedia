@@ -158,7 +158,6 @@ class Tree:
         return string
 
     def to_txt(self, filename, with_color=True):
-        print(filename)
         with open(filename, "w") as f:
             f.write(self.pretty_str(with_color=with_color))
 
