@@ -157,9 +157,12 @@ class Tree:
 
         return string
 
-    def to_txt(self, filename, with_color=True):
+    def to_txt(self, filename=None, with_color=True):
+        if filename is None:
+            filename = f"{self.rank}_{self.label}.txt"
         with open(filename, "w") as f:
             f.write(self.pretty_str(with_color=with_color))
+        return filename
 
     def view(self, with_color=True):
         filename = self.to_txt(with_color=with_color)

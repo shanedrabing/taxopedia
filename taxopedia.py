@@ -284,13 +284,13 @@ if __name__ == "__main__":
 
     # scrape the data
     TAXA = "Hominidae"
-    # links_dict = search(TAXA, comprehensive=False)
+    links_dict = search(TAXA, comprehensive=False)
 
     # # link the pages
-    # data = linker(TAXA)
+    data = linker(TAXA)
 
     # explore the tree
     tree = Tree.from_csv(f"{TAXA}.csv")  # load from a slim version
-    # tree.view()
+    tree.view()
     tree.to_txt(f"{TAXA}.txt", with_color=False)
     tree.to_csv(f"{TAXA}_full.csv")  # saves a filled in version
