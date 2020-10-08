@@ -4,7 +4,7 @@ import csv
 import itertools
 import subprocess
 
-from constants import RANK, COLORS
+from helpers.constants import RANK, COLORS
 
 
 class WikiTree:
