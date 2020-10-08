@@ -2,3 +2,6 @@ __pycache__/*
 *.txt
 *.csv
 *.search
+*.egg-info
+build
+dist
