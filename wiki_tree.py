@@ -7,7 +7,7 @@ import subprocess
 from constants import RANK, COLORS
 
 
-class Tree:
+class WikiTree:
     def __init__(self, label, rank, name=None):
         self.label = label
         self.rank = rank

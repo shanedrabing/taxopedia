@@ -14,7 +14,7 @@ csv_name = f"{TAXA}.csv"
 data = linker(links_dict, filename=csv_name)
 
 # explore the tree
-tree = Tree.from_csv(csv_name)  # load from a slim CSV
+tree = WikiTree.from_csv(csv_name)  # load from a slim CSV
 tree.view(with_color=True)  # view in color console (UNIX, VS Code)
 
 # export to file

@@ -10,7 +10,7 @@ import pandas as pd
 
 from tqdm import tqdm
 from constants import RANK
-from taxonomic_trees import Tree
+from wiki_tree import WikiTree
 from async_utils import run_requests, divide_chunks
 
 
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     data = linker(links_dict, filename=csv_name)
 
     # explore the tree
-    tree = Tree.from_csv(csv_name)  # load from a slim CSV
+    tree = WikiTree.from_csv(csv_name)  # load from a slim CSV
     tree.view(with_color=True)  # view in color console (UNIX, VS Code)
 
     # export to file
