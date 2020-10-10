@@ -5,16 +5,18 @@ Build taxonomic trees (cladograms) from Wikipedia-scraped data.
 ## Example Usage
 
 ```python
+import taxopedia
+
 # scrape the data
 TAXA = "Hominidae"
-links_dict = search(TAXA, comprehensive=False)
+links_dict = taxopedia.search(TAXA, comprehensive=False)
 
 # link the pages
 csv_name = f"{TAXA}.csv"
-data = linker(links_dict, filename=csv_name)
+data = taxopedia.linker(links_dict, filename=csv_name)
 
 # explore the tree
-tree = WikiTree.from_csv(csv_name)  # load from a slim CSV
+tree = taxopedia.WikiTree.from_csv(csv_name)  # load from a slim CSV
 tree.view(with_color=True)  # view in color console (UNIX, VS Code)
 
 # export to file
