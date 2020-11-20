@@ -255,7 +255,9 @@ class WikiTree:
                 if not label.endswith(common_name.split()[-1]):
                     # print(nodes[child_key].name, "|", common_name)
                     if nodes[child_key].name:
-                        common_name = ", ".join((nodes[child_key].name, common_name))
+                        common_name = ", ".join(
+                            (nodes[child_key].name, common_name)
+                        )
                     nodes[child_key].name = common_name
 
         any_key = next(iter(nodes.keys()))

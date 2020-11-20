@@ -257,6 +257,30 @@ def linker(search_or_dict, filename=None):
         prev = ""
         order = ["Common Name"]
 
+        iterable = iter(range(len(traits)))
+        i = next(iterable)
+        while True:
+            try:
+                t = traits[i]
+                if "×" in t:
+                    traits = (
+                        traits[:i - 1] +
+                        [" ".join(traits[i - 1:i + 2])] +
+                        traits[i + 2:]
+                    )
+                elif t.startswith("♂") or t.startswith("♀"):
+                    traits = (
+                        traits[:i - 1] +
+                        [" ".join(traits[i - 1:i + 1])] +
+                        traits[i + 1:]
+                    )
+                else:
+                    i = next(iterable)
+            except StopIteration:
+                break
+            except IndexError:
+                break
+
         iterator = iter(traits[1 + my_index:])
         for curr in iterator:
             if prev.istitle() and prev.endswith(":"):
@@ -293,23 +317,3 @@ def linker(search_or_dict, filename=None):
     df.to_csv(wd_join(filename), index=False)
 
     return data
-
-
-if __name__ == "__main__":
-    assert sys.version_info >= (3, 7), "Script requires Python 3.7+"
-
-    # scrape the data
-    TAXA = "Hominidae"
-    links_dict = search(TAXA, comprehensive=False)
-
-    # link the pages
-    csv_name = f"{TAXA}.csv"
-    data = linker(links_dict, filename=csv_name)
-
-    # explore the tree
-    tree = WikiTree.from_csv(csv_name)  # load from a slim CSV
-    tree.view(with_color=True)  # view in color console (UNIX, VS Code)
-
-    # export to file
-    tree.to_csv(f"{TAXA}_full.csv")  # saves a filled-in CSV
-    tree.to_txt(f"{TAXA}.txt")  # saves a dendrogram

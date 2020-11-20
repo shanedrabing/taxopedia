@@ -13,7 +13,7 @@ RANK = [
     "Group", "Family", "Subfamily", "Infrafamily", "Supertribe", "Tribe",
     "Subtribe", "Infratribe", "Genus", "Subgenus", "Section", "Subsection",
     "Series", "Subseries", "Superspecies", "Species", "Subspecies",
-    "Variety", "Subvariety", "Form", "Subform"
+    "Hybrid", "Variety", "Subvariety", "Form", "Subform"
 ]
 
 COLORS = {
