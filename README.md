@@ -2,6 +2,14 @@
 
 Build taxonomic trees (cladograms) from Wikipedia-scraped data.
 
+## Installation
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install taxopedia.
+
+```bash
+pip install taxopedia
+```
+
 ## Example Usage
 
 ```python
@@ -149,3 +157,7 @@ Kingdom : Animalia
                                             │       └── Genus : †Lufengpithecus
                                             └── Family : Hylobatidae (Gibbons)
 ```
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
