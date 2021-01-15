@@ -1,4 +1,5 @@
 import asyncio
+import selectors
 from aiohttp import ClientSession, ClientConnectorError
 
 
@@ -18,9 +19,18 @@ async def make_requests(urls):
 
 def run_requests(urls):
     """ url, status, html """
-    return asyncio.run(make_requests(urls))
+    selector = selectors.SelectSelector()
+    loop = asyncio.SelectorEventLoop(selector)
+    result = loop.run_until_complete(make_requests(urls))
+    loop.close()    
+    return result
 
 
 def divide_chunks(lst, length):
     for index in range(0, len(lst), length):
         yield lst[index:index + length]
+
+
+if __name__ == "__main__":
+    x = run_requests(["https://en.wikipedia.org/wiki/Main_Page"])
+    print(x)

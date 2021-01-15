@@ -215,14 +215,14 @@ def linker(search_or_dict, filename=None):
             soup = BeautifulSoup(html, "lxml")
             text = soup.select_one(".biota")
 
-            with open(os.path.join(search_term, temp_filename), "w") as f:
+            with open(os.path.join(search_term, temp_filename), "w", encoding="utf-8") as f:
                 f.write(str(text))
 
     files = os.listdir(os.path.join(search_term))
 
     htmls = []
     for fname in files:
-        with open(os.path.join(search_term, fname)) as f:
+        with open(os.path.join(search_term, fname), encoding="utf-8") as f:
             html = f.read()
             if "Ancestral taxa" in html:
                 os.remove(os.path.join(search_term, fname))
@@ -235,8 +235,12 @@ def linker(search_or_dict, filename=None):
     for html in htmls:
         soup = BeautifulSoup(html, "lxml")
 
+        tbody = soup.find("tbody")
+        if not tbody:
+            continue
+
         traits = []
-        for x in soup.find("tbody").children:
+        for x in tbody.children:
             try:
                 _, matches = iter(
                     zip(*pattern.findall(" ".join(str(x).split()))))

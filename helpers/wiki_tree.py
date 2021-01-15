@@ -160,7 +160,7 @@ class WikiTree:
     def to_txt(self, filename=None, with_color=False):
         if filename is None:
             filename = f"{self.rank}_{self.label}.txt"
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(self.pretty_str(with_color=with_color))
         return filename
 
@@ -177,7 +177,7 @@ class WikiTree:
 
         try:
             filename = self.to_txt()
-            with open(filename) as f:
+            with open(filename, encoding="utf-8") as f:
                 for index, line in enumerate(f):
                     if pattern.search(line):
                         subprocess.run(
@@ -196,7 +196,7 @@ class WikiTree:
             key=RANK.index
         )
 
-        with open(filename, "w") as f:
+        with open(filename, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(all_keys)
             writer.writerows(
@@ -227,7 +227,7 @@ class WikiTree:
     def from_csv(filename):
         nodes = {}
 
-        with open(filename) as f:
+        with open(filename, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for line in reader:
                 filtrate = itertools.compress(line.items(), line.values())
