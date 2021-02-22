@@ -323,7 +323,7 @@ def linker(search_or_dict, filename=None):
     return data
 
 
-def centrum(taxa: str, comprehensive: bool) -> WikiTree:
+def arboretum(taxa: str, comprehensive: bool) -> WikiTree:
     links_dict = search(taxa, comprehensive)
 
     csv_name = f"{taxa}.csv"

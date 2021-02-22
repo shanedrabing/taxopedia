@@ -17,11 +17,7 @@ import taxopedia
 
 # scrape the data, generate a tree
 TAXA = "Hominidae"
-
-# (taxa: str,
-#  comprehensive: bool) -> WikiTree
-tree = taxopedia.centrum(taxa=TAXA,
-                         comprehensive=False)
+tree = taxopedia.arboretum(taxa=TAXA, comprehensive=False)
 
 # export the tree
 tree.to_csv(f"{TAXA}_full.csv")  # saves a filled-out csv
