@@ -321,3 +321,13 @@ def linker(search_or_dict, filename=None):
     df.to_csv(wd_join(filename), index=False)
 
     return data
+
+
+def centrum(taxa: str, comprehensive: bool) -> WikiTree:
+    links_dict = search(taxa, comprehensive)
+
+    csv_name = f"{taxa}.csv"
+    data = linker(links_dict, filename=csv_name)
+
+    tree = WikiTree.from_csv(csv_name)
+    return tree
