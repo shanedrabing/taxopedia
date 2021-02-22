@@ -10,29 +10,28 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install taxoped
 pip install taxopedia
 ```
 
-## Example Usage
+## Test Script
 
 ```python
 import taxopedia
 
-# scrape the data
+# scrape the data, generate a tree
 TAXA = "Hominidae"
-links_dict = taxopedia.search(TAXA, comprehensive=False)
 
-# link the pages
-csv_name = f"{TAXA}.csv"
-data = taxopedia.linker(links_dict, filename=csv_name)
+# (taxa: str,
+#  comprehensive: bool) -> WikiTree
+tree = taxopedia.centrum(taxa=TAXA,
+                         comprehensive=False)
 
-# explore the tree
-tree = taxopedia.WikiTree.from_csv(csv_name)  # load from a slim CSV
-tree.view(with_color=True)  # view in color console (UNIX, VS Code)
-
-# export to file
-tree.to_csv(f"{TAXA}_full.csv")  # saves a filled-in CSV
-tree.to_txt(f"{TAXA}.txt")  # saves a dendrogram
+# export the tree
+tree.to_csv(f"{TAXA}_full.csv")  # saves a filled-out csv
+tree.to_txt(f"{TAXA}_tree.txt")  # saves a dendrogram
 ```
 
-## Example Output (Tree.to_txt)
+## Example Output
+
+<details>
+  <summary>WikiTree.to_txt</summary>
 
 ```txt
 Kingdom : Animalia
@@ -157,6 +156,134 @@ Kingdom : Animalia
                                             │       └── Genus : †Lufengpithecus
                                             └── Family : Hylobatidae (Gibbons)
 ```
+
+</details>
+
+<details>
+  <summary>WikiTree.to_csv</summary>
+
+```txt
+Rank       Common.Name                  Kingdom  Phylum   Class    Mirorder      Order    Parvorder  Suborder   Infraorder  Superfamily Family     Subfamily       Tribe            Subtribe          Genus            Species                         Subspecies
+Kingdom                                 Animalia                                                                                                                                                                                                                           
+Phylum                                  Animalia Chordata                                                                                                                                                                                                                  
+Class                                   Animalia Chordata Mammalia                                                                                                                                                                                                         
+Mirorder                                Animalia Chordata Mammalia Primatomorpha                                                                                                                                                                                           
+Order                                   Animalia Chordata Mammalia Primatomorpha Primates                                                                                                                                                                                  
+Parvorder                               Animalia Chordata Mammalia Primatomorpha Primates Catarrhini                                                                                                                                                                       
+Suborder                                Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini                                                                                                                                                            
+Infraorder                              Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes                                                                                                                                                
+Superfamily Hominoids or apes           Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea                                                                                                                                     
+Family                                  Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                                                                                                                           
+Subfamily                               Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae                                                                                                               
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                                                                                                
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo                                                                 
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †H. erectus                                         
+Subspecies                              Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †H. erectus                     †H. e. erectus      
+Subspecies  Peking man                  Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †H. erectus                     †H. e. pekinensis   
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             H. erectus                                          
+Subspecies  Solo Man                    Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             H. erectus                      H. e. soloensis     
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             H. sapiens                                          
+Subspecies                              Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             H. sapiens                      †H. s. idaltu       
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             Homo erectus                                        
+Species     Human                       Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             Homo sapiens                                        
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo antecessor                                    
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo ergaster                                      
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo floresiensis                                  
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo habilis                                       
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo heidelbergensis                               
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo luzonensis                                    
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo naledi                                        
+Species     Neanderthal                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo neanderthalensis                              
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo rhodesiensis                                  
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           Homo             †Homo rudolfensis                                   
+Subtribe    Australopiths               Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina                                                                      
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus                                                     
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus Australopithecus afarensis                          
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus Australopithecus africanus                          
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus Australopithecus deyiremeda                         
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus Australopithecus garhi                              
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus Australopithecus sediba                             
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus †Australopithecus anamensis                         
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina Australopithecus †Australopithecus bahrelghazali                     
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina †Paranthropus                                                        
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina †Paranthropus    †P. aethiopicus                                     
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina †Paranthropus    †P. boisei                                          
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Australopithecina †Paranthropus    †P. robustus                                        
+Subtribe                                Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina                                                                                 
+Genus       Chimpanzees and bonobos     Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan                                                                  
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan              P. troglodytes                                      
+Subspecies  Nigeria-Cameroon chimpanzee Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan              P. troglodytes                  P. t. ellioti       
+Subspecies  Eastern chimpanzee          Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan              P. troglodytes                  P. t. schweinfurthii
+Subspecies  Central chimpanzee          Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan              P. troglodytes                  P. t. troglodytes   
+Subspecies  Western chimpanzee          Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan              P. troglodytes                  P. t. verus         
+Species     Bonobo                      Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan              Pan paniscus                                        
+Species     Chimpanzee                  Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Panina            Pan              Pan troglodytes                                     
+Subtribe                                Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Hominina                                                                               
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Hominina          †Ardipithecus                                                        
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Hominina          †Ardipithecus    †A. kadabba                                         
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini         Hominina          †Ardipithecus    †A. ramidus                                         
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           †Orrorin                                                             
+Species     Orrorin                     Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           †Orrorin         †O. tugenensis                                      
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Hominini                           †Kenyanthropus                                                       
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                                                                                               
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla                                                              
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          G. beringei                                         
+Subspecies  Mountain gorilla            Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          G. beringei                     G. b. beringei      
+Subspecies  Eastern lowland gorilla     Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          G. beringei                     G. b. graueri       
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          G. gorilla                                          
+Subspecies  Cross River gorilla         Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          G. gorilla                      G. g. diehli        
+Subspecies                              Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          G. gorilla                      G. g. gorilla       
+Species     Eastern gorilla             Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          Gorilla beringei                                    
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          Gorilla          Gorilla gorilla                                     
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          †Chororapithecus                                                     
+Species     Chororapithecus             Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       Gorillini                          †Chororapithecus †C. abyssinicus                                     
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       †Graecopithecini                                                                                        
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       †Graecopithecini                   †Ouranopithecus                                                      
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       †Graecopithecini                   †Ouranopithecus  †O. macedoniensis                                   
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       †Graecopithecini                   †Ouranopithecus  †O. turkae                                          
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae       †Graecopithecini                   †Graecopithecus                                                      
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae                                          †Sahelanthropus                                                      
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Homininae                                          †Sahelanthropus  †S. tchadensis                                      
+Subfamily                               Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae                                                                                                                
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        †Sivapithecini                                                                                          
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        †Sivapithecini                     †Ankarapithecus                                                      
+Species     Ankarapithecus              Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        †Sivapithecini                     †Ankarapithecus  †A. meteai                                          
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        †Sivapithecini                     †Gigantopithecus                                                     
+Species     Gigantopithecus             Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        †Sivapithecini                     †Gigantopithecus †G. blacki                                          
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        †Sivapithecini                     †Sivapithecus                                                        
+Genus       Orangutans                  Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae                                           Pongo                                                                
+Species     Sumatran orangutan          Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae                                           Pongo            Pongo abelii                                        
+Species     Bornean orangutan           Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae                                           Pongo            Pongo pygmaeus                                      
+Species     Tapanuli orangutan          Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae                                           Pongo            Pongo tapanuliensis                                 
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae                                           Pongo            †Pongo hooijeri                                     
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        Pongini                                                                                                 
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   Ponginae        Pongini                            †Khoratpithecus                                                      
+Subfamily                               Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae                                                                                                         
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Kenyapithecini                                                                                         
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Kenyapithecini                    †Griphopithecus                                                      
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Kenyapithecini                    †Griphopithecus  †G. alpani                                          
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Kenyapithecini                    †Griphopithecus  †G. suessi                                          
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Kenyapithecini                    †Kenyapithecus                                                       
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Kenyapithecini                    †Kenyapithecus   †K. wickeri                                         
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Afropithecini                                                                                          
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Afropithecini                     †Otavipithecus                                                       
+Species     Otavipithecus               Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae   †Dryopithecinae †Afropithecini                     †Otavipithecus   †O. namibiensis                                     
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                                                                                          
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                     †Anoiapithecus                                                       
+Species     Anoiapithecus               Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                     †Anoiapithecus   †A. brevirostris                                    
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                     †Danuvius                                                            
+Species                                 Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                     †Danuvius        †D. guggenmosi                                      
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                     †Rudapithecus                                                        
+Species     Rudapithecus                Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                     †Rudapithecus    †R. hungaricus                                      
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Dryopithecini                     †Dryopithecus                                                        
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                                                      †Nakalipithecus                                                      
+Species     Nakalipithecus              Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                                                      †Nakalipithecus  †N. nakayamai                                       
+Tribe                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Lufengpithecini                                                                                        
+Genus                                   Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hominidae                   †Lufengpithecini                   †Lufengpithecus                                                      
+Family      Gibbons                     Animalia Chordata Mammalia Primatomorpha Primates Catarrhini Haplorhini Simiiformes Hominoidea Hylobatidae                                                                                                                         
+```
+
+</details>
 
 ## License
 
