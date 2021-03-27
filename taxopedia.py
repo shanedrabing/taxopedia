@@ -82,8 +82,8 @@ class WikiTree:
 
     def __lt__(self, other):
         return (
-            (-self.num_children(), self.data["RankN"], str(self)) <
-            (-other.num_children(), other.data["RankN"], str(other))
+            (self.data["RankN"], -self.num_children(), str(self)) <
+            (other.data["RankN"], -other.num_children(), str(other))
         )
 
     def __iter__(self):
