@@ -1,6 +1,7 @@
 *__pycache__
 *.search
 *.egg-info
+.vscode
 .DS_Store
 build
 dist
