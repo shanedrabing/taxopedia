@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="taxopedia",
-    version="0.3.0",
+    version="1.0.0",
     author="Shane Drabing",
     author_email="shane.drabing@gmail.com",
     packages=setuptools.find_packages(),
@@ -22,6 +22,6 @@ setuptools.setup(
         ("", ["LICENSE.txt"])
     ],
     install_requires=[
-        "pandas", "tqdm", "bs4", "asyncio", "aiohttp"
+        "bs4", "aiohttp"
     ]
 )

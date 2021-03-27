@@ -1,3 +1,8 @@
+__author__ = "Shane Drabing"
+__license__ = "MIT"
+__version__ = "1.0.0"
+__email__ = "shane.drabing@gmail.com"
+
 import asyncio
 import csv
 import functools
@@ -10,6 +15,7 @@ from typing import Dict, Iterable, List, Tuple
 
 import aiohttp
 import bs4
+
 
 # CONSTANTS
 

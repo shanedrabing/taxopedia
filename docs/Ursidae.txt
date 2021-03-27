@@ -1,54 +1,3 @@
-# Taxopedia
-
-Build taxonomic trees (cladograms) from Wikipedia-scraped data.
-
-## Installation
-
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install taxopedia.
-
-```bash
-pip install taxopedia
-```
-
-Otherwise, simply download `taxopedia.py`, it's now a single file  :)
-
-## Test Script
-
-### The One-Timer
-
-```python
-import taxopedia
-
-# create a tree... and get a bag of parsed biota boxes!
-tree, bag = taxopedia.arboretum("Bears")
-
-# pretty print the tree
-print(tree.pretty())
-
-# export multiple formats
-tree.to_txt("Ursidae.txt")    # plain-text tree diagram
-tree.to_html("Ursidae.html")  # diagram with images
-tree.to_csv("Ursidae.csv")    # filled-out tabular data
-```
-
-### Saving and Loading Progress
-
-```py
-# save the biota bag (so you don't have to scrape it again!)
-taxopedia.dump_bag("bag.json", bag)
-
-# loading the biota bag
-bag = taxopedia.load_bag("bag.json")
-
-# how to get a tree from a bag
-tree = taxopedia.make_tree(bag)
-```
-
-## Example Output
-
-The plain-text dedrogram is as follows. See `docs` folder for an example CSV and HTML file as well.
-
-```txt
 Kingdom: Animalia
 └── Phylum: Chordata
     └── Class: Mammalia
@@ -102,8 +51,3 @@ Kingdom: Animalia
                         │   └── Species: † K. beatrix (Kretzoiarctos beatrix)
                         └── Genus: † Zaragocyon
                             └── Species: † Z. daamsi (Zaragocyon)
-```
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
