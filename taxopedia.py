@@ -743,17 +743,3 @@ def search(term: str, check: str = None, comprehensive: bool = False, echo: bool
     biota_bag = make_bag(term, check, comprehensive, echo)
     tree = make_tree(biota_bag)
     return (tree, biota_bag)
-
-
-if __name__ == "__main__":
-    import time
-
-    tree, bag = search("Bears")
-
-    print(tree.pretty())
-
-    tree.to_txt("data/temp.txt")
-    tree.to_html("data/temp.html")
-    tree.to_csv("data/temp.csv")
-
-    dump_bag(f"data/bag_{int(time.time())}.json", bag)
