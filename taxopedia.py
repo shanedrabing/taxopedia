@@ -11,7 +11,7 @@ import re
 import selectors
 import urllib
 from types import FunctionType
-from typing import Dict, Iterable, List, Tuple
+from typing import Any, Dict, Generator, Iterable, List, Tuple
 
 import aiohttp
 import bs4
@@ -266,7 +266,15 @@ class WikiTree:
 # FUNCTIONS (ASYNC)
 
 
-def tag(name, *args, cap=True, **kwargs):
+def tag(name: str, *args: Any, cap: bool = True, **kwargs: dict) -> str:
+    """Makes an HTML tag
+
+    :param name: Tag name
+    :param *args: The contents of the tag, must have __str__ method
+    :param cap: Should the tag have an end?
+    :param **kwargs: Tag attributes
+    :returns: String of a formatted HTML tag
+    """
     attrs = "".join(
         f" {k.strip('_')}='{v}'"
         for k, v in kwargs.items()
@@ -330,6 +338,23 @@ def sp(name: str) -> str:
         f"{x[0]}." if i != len(lst) - 1 else x
         for i, x in enumerate(lst)
     )
+
+
+def chunker(iterable: Iterable, size: int = 64) -> Generator:
+    """Divide an iterable into chunks, returning lists
+
+    :param iterable: Any iterable
+    :param size: The size of the chunks
+    :returns: A generator of lists of length `size` or smaller
+    """
+    lst = list()
+    for x in iterable:
+        lst.append(x)
+        if (len(lst) == size):
+            yield lst
+            lst = list()
+    if lst:
+        yield lst
 
 
 def get_rank(unit: str) -> int:
@@ -567,7 +592,9 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
             print("Now requesting", len(urls), f"link{plural}...")
 
         # requesting and parsing
-        requests = run_requests(urls)
+        requests = list()
+        for chunk in chunker(urls):
+            requests += run_requests(chunk)
         url_sets, boxes = zip(*map(scraper, requests))
 
         # saving the valid boxes
@@ -583,7 +610,7 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
                     scraper = process_request_closure(check, comprehensive)
                     if echo:
                         print(
-                            f"Now checking \"{check}\"\n" +
+                            f"Now checking for \"{check}\"\n" +
                             "  (otherwise, set `check` parameter manually)"
                         )
 
