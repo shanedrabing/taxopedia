@@ -79,8 +79,8 @@ class WikiTree:
 
     def __lt__(self, other):
         return (
-            (-self.get_num_children(), self.data["RankN"], str(self)) <
-            (-other.get_num_children(), other.data["RankN"], str(other))
+            (-self.num_children(), self.data["RankN"], str(self)) <
+            (-other.num_children(), other.data["RankN"], str(other))
         )
 
     def __iter__(self):
@@ -100,10 +100,10 @@ class WikiTree:
         return (self.data,)
 
     # return the number of children
-    def get_num_children(self):
+    def num_children(self):
         return (
             len(self.children) +
-            sum(map(WikiTree.get_num_children, self.children))
+            sum(map(WikiTree.num_children, self.children))
         )
 
     def sorted_children(self):
