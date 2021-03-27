@@ -4,7 +4,8 @@ Build taxonomic trees (cladograms) from Wikipedia-scraped data.
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install taxopedia.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install
+taxopedia.
 
 ```bash
 pip install taxopedia
@@ -44,7 +45,8 @@ tree = taxopedia.make_tree(bag)
 
 ## Example Output
 
-The plain-text dedrogram is as follows. See `docs` folder for an example CSV and HTML file as well.
+The plain-text dedrogram is as follows. See `docs` folder for an example CSV
+and HTML file as well.
 
 ```txt
 Kingdom: Animalia
