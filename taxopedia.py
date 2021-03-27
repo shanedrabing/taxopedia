@@ -205,7 +205,7 @@ class WikiTree:
         with open(filename, "w", encoding="utf-8") as f:
             lst = self.pretty(key).split("\n")
             body = "\n".join(map(lambda x: f"<pre>{x}</pre>", lst))
-            f.write(f"<html><body>\n{body}\n</html></body>\n")
+            f.write(f"<!DOCTYPE html><html><body>\n{body}\n</body></html>\n")
 
     def to_csv(self, filename):
         data = list()

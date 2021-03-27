@@ -10,9 +10,9 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install taxoped
 pip install taxopedia
 ```
 
-Otherwise, simply download `taxopedia.py`, it's now a single file  :)
+Otherwise, download `taxopedia.py`, it's a single file!
 
-## Test Script
+## Getting Started
 
 ### The One-Timer
 
@@ -26,7 +26,7 @@ tree, bag = taxopedia.arboretum("Bears")
 print(tree.pretty())
 
 # export multiple formats
-tree.to_txt("Ursidae.txt")    # plain-text tree diagram
+tree.to_txt("Ursidae.txt")    # plain-text dendrogram
 tree.to_html("Ursidae.html")  # diagram with images
 tree.to_csv("Ursidae.csv")    # filled-out tabular data
 ```
