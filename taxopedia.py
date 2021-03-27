@@ -34,6 +34,7 @@ WIKI_EN = "https://en.wikipedia.org/wiki/"
 WIKI_IMG = "https://upload.wikimedia.org/"
 WIKI_PATTERN = re.compile(r"^(/wiki/[A-z#]+)$")
 WIKI_IMG_PATTERN = re.compile(r"/thumb|(/\d+px.*?)$")
+WIKI_SMALL_FONT = re.compile(r"font-size:\s*(\d+)%")
 SPECIAL = (Symbols.DAGGER, Symbols.CROSS)
 
 
@@ -454,15 +455,24 @@ def process_biota_box(box: bs4.element.Tag, url: str) -> dict:
         if "get_text" not in dir(x):
             continue
 
-        for junk in x.select("small"):
-            junk.extract()
+        # extract out author notes
+        for note in x.select("small"):
+            note.extract()
 
+        for note in x.select("[style]"):
+            font = WIKI_SMALL_FONT.findall(note["style"])
+            ints = tuple(map(int, font))
+            if ints and ints[0] < 100:
+                note.extract()
+
+        # seperate the tag elements with a pipe
         text = " ".join(x.get_text("|").split())
         header, *lst = (
             replace_all(text, "| |", "|")
             .strip("| ").split("|")
         )
 
+        # taxonomy starts after this header
         if header == "Scientific classification":
             postsci = True
         elif postsci and header.endswith(": "):
@@ -513,7 +523,7 @@ def make_bag(term: str, check: str, comprehensive: bool) -> Tuple[Dict]:
     biota_bag = tuple()
     while urls:
         plural = ("s" if len(urls) > 1 else "")
-        print("Now checking", len(urls), f"link{plural}...")
+        print("Now requesting", len(urls), f"link{plural}...")
 
         # requesting and parsing
         requests = run_requests(urls)
@@ -530,7 +540,7 @@ def make_bag(term: str, check: str, comprehensive: bool) -> Tuple[Dict]:
                 if (url == hold) and (check is None):
                     check = biota[biota[(-1, "Rank")]]
                     print(
-                        f"Now requesting \"{check}\"\n" +
+                        f"Now checking \"{check}\"\n" +
                         "  (otherwise, set `check` parameter manually)"
                     )
                     scraper = process_request_closure(check, comprehensive)
@@ -654,3 +664,8 @@ def arboretum(term: str, check: str = None, comprehensive: bool = False) -> Tupl
     biota_bag = make_bag(term, check, comprehensive)
     tree = make_tree(biota_bag)
     return (tree, biota_bag)
+
+
+if __name__ == "__main__":
+    tree, bag = arboretum("Proboscidea")
+    print(tree.pretty())
