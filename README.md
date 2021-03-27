@@ -11,8 +11,6 @@ taxopedia.
 pip install taxopedia
 ```
 
-Otherwise, download `taxopedia.py`, it's a single file!
-
 ## Getting Started
 
 ```python

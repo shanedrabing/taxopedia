@@ -16,6 +16,8 @@ from typing import Dict, Iterable, List, Tuple
 import aiohttp
 import bs4
 
+from css import CSS
+
 
 # CONSTANTS
 
@@ -23,11 +25,12 @@ import bs4
 class Symbols:
     DAGGER = "†"
     CROSS = "×"
+    LINK = "⛓"
+    EYE = "👁"
+    FLAT = "─"
     VERT = "│"
     RTEE = "├"
     TURN = "└"
-    FLAT = "─"
-    EYE = "👁"
 
 
 WIKI_EN = "https://en.wikipedia.org/wiki/"
@@ -181,32 +184,35 @@ class WikiTree:
 
         return string
 
+    # for the to_html method
+    def html_list(self):
+        br = tag("br", cap=False)
+        pre = img = kids = ""
+
+        if "IMAGE" in self.data:
+            pre += f" {Symbols.EYE}"
+            img = tag("img", src=self.data['IMAGE'], cap=False)
+        if self.children:
+            kids = tag("ul", *map(WikiTree.html_list, self.sorted_children()))
+
+        rep = (
+            tag("b", self.data['Header']) + br + tag("i", self.data['Label'])
+        )
+        if "Common Name" in self.data:
+            rep += br + tag("small", f"({self.data['Common Name']})")
+
+        kwargs = {"class_": "parent", "target": "_blank"}
+        if "URL" in self.data:
+            pre += f" {Symbols.LINK}"
+            kwargs["href"] = self.data["URL"]
+        if pre:
+            img = br + pre + img
+
+        return tag("li", tag("a", rep, img, **kwargs), kids)
+
     def to_txt(self, filename):
         with open(filename, "w", encoding="utf-8") as f:
             f.write(self.pretty())
-
-    def to_html(self, filename):
-        def key(tree):
-            dct = tree.data
-            string = f"{dct['Header']}: "
-            if "IMAGE" in dct:
-                string += (
-                    f"<a href='{dct['IMAGE']}'>" +
-                    f"<img src='{dct['THUMB']}'></a> "
-                )
-            if "URL" in dct:
-                string += f"<a href='{dct['URL']}'>"
-            string += dct["Label"]
-            if "Common Name" in dct:
-                string += f" ({dct['Common Name']})"
-            if "URL" in dct:
-                string += "</a>"
-            return string
-
-        with open(filename, "w", encoding="utf-8") as f:
-            lst = self.pretty(key).split("\n")
-            body = "\n".join(map(lambda x: f"<pre>{x}</pre>", lst))
-            f.write(f"<!DOCTYPE html><html><body>\n{body}\n</body></html>\n")
 
     def to_csv(self, filename):
         data = list()
@@ -248,8 +254,27 @@ class WikiTree:
             for row in data:
                 writer.writerow(row)
 
+    def to_html(self, filename):
+        with open(filename, "w", encoding="utf-8") as f:
+            head = tag("head", tag("style", CSS))
+            tree = tag("div", tag("ul", self.html_list()), class_="tree")
+            body = tag("body", tree)
+            html = tag("html", head, body)
+            f.write(f"<!DOCTYPE html>\n{html}\n")
+
 
 # FUNCTIONS (ASYNC)
+
+
+def tag(name, *args, cap=True, **kwargs):
+    attrs = "".join(
+        f" {k.strip('_')}='{v}'"
+        for k, v in kwargs.items()
+    )
+    start = f"<{name}{attrs}>"
+    middle = "".join(map(str, args)).strip() + ("\n" if args else "")
+    end = (f"</{name}>\n" if cap else "")
+    return f"{start}\n{middle}{end}"
 
 
 async def fetch_html(url: str, session: aiohttp.ClientSession) -> Tuple[str, int, str]:
@@ -696,7 +721,7 @@ def search(term: str, check: str = None, comprehensive: bool = False, echo: bool
 if __name__ == "__main__":
     import time
 
-    tree, bag = search("Canis")
+    tree, bag = search("Bears")
 
     print(tree.pretty())
 
