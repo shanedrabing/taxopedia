@@ -3,31 +3,31 @@ Kingdom: Animalia
     └── Class: Mammalia
         └── Order: Carnivora
             └── Suborder: Caniformia (Caniforms)
-                └── Infraorder: Arctoidea (Arctoidea)
+                └── Infraorder: Arctoidea
                     └── Family: Ursidae (Bears)
-                        ├── Subfamily: Ailuropodinae (Ailuropodinae)
+                        ├── Subfamily: Ailuropodinae
                         │   ├── Genus: Ailuropoda (Panda)
                         │   │   ├── Species: A. melanoleuca (Giant panda)
                         │   │   │   └── Subspecies: A. m. qinlingensis (Qinling panda/Brown panda)
-                        │   │   ├── Species: A. baconi (Ailuropoda baconi)
-                        │   │   └── Species: A. microta (Ailuropoda microta)
+                        │   │   ├── Species: A. baconi
+                        │   │   └── Species: A. microta
                         │   ├── Tribe: † Indarctini
-                        │   │   └── Genus: † Indarctos (Indarctos)
-                        │   └── Genus: † Miomaci (Miomaci)
-                        ├── Subfamily: Tremarctinae (Tremarctinae)
-                        │   ├── Genus: Tremarctos (Tremarctos)
+                        │   │   └── Genus: † Indarctos
+                        │   └── Genus: † Miomaci
+                        ├── Subfamily: Tremarctinae
+                        │   ├── Genus: Tremarctos
                         │   │   ├── Species: T. ornatus (Spectacled bear)
-                        │   │   └── Species: † T. floridanus (Tremarctos floridanus)
-                        │   ├── Genus: Plionarctos (Plionarctos)
+                        │   │   └── Species: † T. floridanus
+                        │   ├── Genus: Plionarctos
                         │   ├── Genus: † Arctodus (Short-faced bear)
-                        │   └── Genus: † Arctotherium (Arctotherium)
-                        ├── Subfamily: † Hemicyoninae (Hemicyoninae)
-                        │   ├── Genus: † Cephalogale (Cephalogale)
-                        │   ├── Genus: † Dinocyon (Dinocyon)
-                        │   ├── Genus: † Hemicyon (Hemicyon)
-                        │   ├── Genus: † Phoberocyon (Phoberocyon)
-                        │   ├── Genus: † Phoberogale (Phoberogale)
-                        │   └── Genus: † Plithocyon (Plithocyon)
+                        │   └── Genus: † Arctotherium
+                        ├── Subfamily: † Hemicyoninae
+                        │   ├── Genus: † Cephalogale
+                        │   ├── Genus: † Dinocyon
+                        │   ├── Genus: † Hemicyon
+                        │   ├── Genus: † Phoberocyon
+                        │   ├── Genus: † Phoberogale
+                        │   └── Genus: † Plithocyon
                         ├── Genus: Ursus
                         │   ├── Species: U. arctos (Brown bear)
                         │   │   ├── Subspecies: U. a. arctos (Eurasian brown bear)
@@ -35,19 +35,19 @@ Kingdom: Animalia
                         │   ├── Species: U. americanus (American black bear)
                         │   ├── Species: U. maritimus (Polar bear)
                         │   └── Species: U. thibetanus (Asian black bear)
-                        ├── Subfamily: Ursinae (Ursinae)
+                        ├── Subfamily: Ursinae
                         │   ├── Genus: Helarctos
                         │   │   └── Species: H. malayanus (Sun bear)
                         │   └── Genus: Melursus
                         │       └── Species: M. ursinus (Sloth bear)
                         ├── Subfamily: † Ursavinae
-                        │   └── Tribe: † Ursavini (Ursavini)
-                        │       └── Genus: † Ursavus (Ursavus)
+                        │   └── Tribe: † Ursavini
+                        │       └── Genus: † Ursavus
                         ├── Subfamily: † Agriotheriinae
-                        │   └── Genus: † Agriotherium (Agriotherium)
+                        │   └── Genus: † Agriotherium
                         ├── Tribe: Ailuropodini
-                        │   └── Genus: † Ailurarctos (Ailurarctos)
+                        │   └── Genus: † Ailurarctos
                         ├── Genus: † Kretzoiarctos
-                        │   └── Species: † K. beatrix (Kretzoiarctos beatrix)
+                        │   └── Species: † K. beatrix
                         └── Genus: † Zaragocyon
                             └── Species: † Z. daamsi (Zaragocyon)
