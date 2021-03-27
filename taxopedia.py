@@ -21,12 +21,12 @@ import bs4
 
 
 class Symbols:
-    CROSS = " × "
     DAGGER = "†"
-    FLAT = "─"
+    CROSS = "×"
     VERT = "│"
     RTEE = "├"
     TURN = "└"
+    FLAT = "─"
     EYE = "👁"
 
 
@@ -294,10 +294,23 @@ def run_requests(urls: Iterable) -> List[Tuple[str, int, str]]:
 # FUNCTIONS (HELPERS)
 
 
+def sp(name: str) -> str:
+    """Abbreviate a species name
+
+    :param name: Full species name to be abbreviated
+    :returns: Abbreviation
+    """
+    lst = name.split()
+    return " ".join(
+        f"{x[0]}." if i != len(lst) - 1 else x
+        for i, x in enumerate(lst)
+    )
+
+
 def get_rank(unit: str) -> int:
     """Return the index position of unit in RANK
 
-    :param unit: The taxonomic unit to be found 
+    :param unit: The taxonomic unit to be found
     :returns: The index position of unit in RANK, otherwise None
     """
     if unit in RANK:
@@ -349,7 +362,7 @@ def make_wiki_url(taxon: str) -> str:
     if (parsing.netloc in WIKI_EN):
         suffix = urllib.parse.urlunparse(parsing)
     else:
-        suffix = taxon
+        suffix = urllib.parse.quote(taxon)
 
     url = urllib.parse.urljoin(WIKI_EN, suffix)
     return (url.split("#")[0])
@@ -463,6 +476,7 @@ def process_biota_box(box: bs4.element.Tag, url: str) -> dict:
             font = WIKI_SMALL_FONT.findall(note["style"])
             ints = tuple(map(int, font))
             if ints and ints[0] < 100:
+                # print(" ".join(note.text.split()))
                 note.extract()
 
         # seperate the tag elements with a pipe
@@ -501,7 +515,7 @@ def process_biota_box(box: bs4.element.Tag, url: str) -> dict:
     return biota
 
 
-def make_bag(term: str, check: str, comprehensive: bool) -> Tuple[Dict]:
+def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Dict]:
     """Walk out a iterative search through Wikipedia pages for biota boxes that
     contain `check`, starting at the redirected Wiki page from `term`, and
     using all the page links if `comprehensive` is True
@@ -509,6 +523,7 @@ def make_bag(term: str, check: str, comprehensive: bool) -> Tuple[Dict]:
     :param term: Starting term, usually suffix of "en.wikipedia.org/wiki/?"
     :param check: Taxon checked within the biota box (keeps searches small)
     :param comprehensive: Should the search include all page links?
+    :param echo: Should the function print updates?
     :returns: The parsed results of all the visited pages
     """
     # starting off
@@ -522,8 +537,9 @@ def make_bag(term: str, check: str, comprehensive: bool) -> Tuple[Dict]:
     # loop
     biota_bag = tuple()
     while urls:
-        plural = ("s" if len(urls) > 1 else "")
-        print("Now requesting", len(urls), f"link{plural}...")
+        if echo:
+            plural = ("s" if len(urls) > 1 else "")
+            print("Now requesting", len(urls), f"link{plural}...")
 
         # requesting and parsing
         requests = run_requests(urls)
@@ -537,20 +553,22 @@ def make_bag(term: str, check: str, comprehensive: bool) -> Tuple[Dict]:
                 biota_bag += (biota,)
 
                 # update restriction
-                if (url == hold) and (check is None):
+                if (len(urls) == 1) and (check is None):
                     check = biota[biota[(-1, "Rank")]]
-                    print(
-                        f"Now checking \"{check}\"\n" +
-                        "  (otherwise, set `check` parameter manually)"
-                    )
                     scraper = process_request_closure(check, comprehensive)
+                    if echo:
+                        print(
+                            f"Now checking \"{check}\"\n" +
+                            "  (otherwise, set `check` parameter manually)"
+                        )
 
         # only need to check new links
         urls = functools.reduce(set.union, url_sets)
         urls -= seen
         seen |= urls
 
-    print("Done!\n")
+    if echo:
+        print("Done!\n")
     return biota_bag
 
 
@@ -583,18 +601,18 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
     """From a list of parsed biota boxes (dict), add the data to WikiTree
     nodes, link the nodes together, and return the root of the tree
 
-    :param biota_bag: A list of dictionaries with biota information 
+    :param biota_bag: A list of dictionaries with biota information
     :returns: A full tree from the collection of biota boxes
     """
     # for finding already created nodes
     nodes = dict()
 
     # for each organism
-    for dct in biota_bag:
+    for biota in biota_bag:
         extra = dict()
         parent_key = None
 
-        for (rank, header), label in sorted(dct.items()):
+        for (rank, header), label in sorted(biota.items()):
             if (rank == -1):
                 # extra data
                 extra[header] = label
@@ -613,6 +631,7 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
                 if (rank == extra["Rank"][0]):
                     # representative (has data)
                     nodes[child_key] = WikiTree(child_key, {**data, **extra})
+                    dct = nodes[child_key].data
                 else:
                     # strutural (only has label)
                     nodes[child_key] = WikiTree(child_key, data)
@@ -635,22 +654,29 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
             # child key is now the parent key
             parent_key = child_key
 
-        # update common names
-        temp = nodes[child_key].data
-        header = "Common Name"
-        common = extra[header]
-        if (header in temp and common not in temp[header]):
-            common = ", ".join((
-                temp[header], common
-            ))
-        temp[header] = common
+        # update extra data
+        cn = "Common Name"
+        dct = nodes[child_key].data
+        label = dct["Label"]
+        for k, v in extra.items():
+            if (k in dct) and (v != dct[k]):
+                # conflicting data
+                if (k == cn) and (v not in dct[k]) and (sp(v) not in label):
+                    dct[k] = ", ".join((dct[k], v))
+            else:
+                # new data
+                dct[k] = v
+
+        # remove false common names
+        if (cn in dct) and (sp(dct[cn]) in label):
+            dct.pop(cn)
 
     # all done
-    root = child.root()
+    root = (child.root() if child else WikiTree(None))
     return root
 
 
-def arboretum(term: str, check: str = None, comprehensive: bool = False) -> Tuple[WikiTree, Tuple[Dict]]:
+def search(term: str, check: str = None, comprehensive: bool = False, echo: bool = True) -> Tuple[WikiTree, Tuple[Dict]]:
     """Starting with a single search `term`, grow a WikiTree through an
     iterative web-crawler; if the search is `comprehensive`, it will include
     all the links on each page; if `check` is set to a specific taxon, it must
@@ -659,13 +685,23 @@ def arboretum(term: str, check: str = None, comprehensive: bool = False) -> Tupl
     :param term: Starting term, usually suffix of "en.wikipedia.org/wiki/?"
     :param check: Taxon checked within the biota box (keeps searches small)
     :param comprehensive: Should the search include all page links?
+    :param echo: Should the function print updates?
     :returns: A WikiTree and the parsed results of all the visited pages
     """
-    biota_bag = make_bag(term, check, comprehensive)
+    biota_bag = make_bag(term, check, comprehensive, echo)
     tree = make_tree(biota_bag)
     return (tree, biota_bag)
 
 
 if __name__ == "__main__":
-    tree, bag = arboretum("Proboscidea")
+    import time
+
+    tree, bag = search("Canis")
+
     print(tree.pretty())
+
+    tree.to_txt("data/temp.txt")
+    tree.to_html("data/temp.html")
+    tree.to_csv("data/temp.csv")
+
+    dump_bag(f"data/bag_{int(time.time())}.json", bag)
