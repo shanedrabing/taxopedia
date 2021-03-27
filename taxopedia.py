@@ -1,6 +1,6 @@
 __author__ = "Shane Drabing"
 __license__ = "MIT"
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __email__ = "shane.drabing@gmail.com"
 
 import asyncio
