@@ -14,8 +14,6 @@ Otherwise, download `taxopedia.py`, it's a single file!
 
 ## Getting Started
 
-### The One-Timer
-
 ```python
 import taxopedia
 
@@ -31,7 +29,7 @@ tree.to_html("Ursidae.html")  # diagram with images
 tree.to_csv("Ursidae.csv")    # filled-out tabular data
 ```
 
-### Saving and Loading Progress
+## Saving and Loading Progress
 
 ```py
 # save the biota bag (so you don't have to scrape it again!)
