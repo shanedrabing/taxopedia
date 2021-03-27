@@ -17,7 +17,7 @@ pip install taxopedia
 import taxopedia
 
 # create a tree... and get a bag of parsed biota boxes!
-tree, bag = taxopedia.arboretum("Bears")
+tree, bag = taxopedia.search("Bears")
 
 # pretty print the tree
 print(tree.pretty())
