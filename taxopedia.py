@@ -87,10 +87,11 @@ class WikiTree:
             (-other.data["RankN"], -other.num_children(), str(other))
         )
 
-    def clone(self):
-        return WikiTree(
-            self.key, self.data.copy(), {x.clone() for x in self.children}
-        )
+    def clone(self, parent=None):
+        node = WikiTree(self.key, self.data.copy())
+        for x in self.children:
+            node.add_child(x.clone())
+        return node
 
     def find(self, key):
         if (self.key == key):
@@ -133,6 +134,7 @@ class WikiTree:
 
     # add a child
     def add_child(self, child):
+        child.parent = self
         self.children.add(child)
         self.is_cached = False
 
@@ -724,12 +726,10 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
 
                 # add or update parent
                 if child.parent is None:
-                    child.parent = parent
                     parent.add_child(child)
                 elif child.parent is not parent:
                     if parent.data["RankN"] > child.parent.data["RankN"]:
                         child.parent.remove_child(child)
-                        child.parent = parent
                         parent.add_child(child)
 
             # child key is now the parent key

@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+/* Credits */
+
+/* Ilya Pestov: Original, https://codepen.io/Pestov/pen/BLpgm */
+/* Paul Smirnov: Horizontal, https://codepen.io/paulsmirnov/pen/dyyOLwa */
+/* Background pattern, https://projects.verou.me/css3patterns/ */
+/* Shane Drabing: Changed styling, added image hover effects */
+
+/* Variables */
+
+:root {
+    --border-radius: 3px;
+    --border-width: 2px;
+    --border-padding: 10px;
+    --transition-speed: 0.5s;
+
+    --bg-color1: hsl(210, 10%, 50%);
+    --bg-color2: hsl(210, 10%, 52%);
+
+    --box-color: hsl(0, 0%, 75%);
+    --border-color: hsl(0, 0%, 75%);
+    --text-color: hsl(0, 0%, 25%);
+
+    --box-color-hover: hsl(0, 0%, 100%);
+    --border-color-hover: hsl(0, 0%, 100%);
+    --text-color-hover: hsl(0, 0%, 0%);
+}
+
+/* Now the CSS */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background:
+    radial-gradient(circle at 100% 50%, transparent 19%, var(--bg-color1) 20%, var(--bg-color1) 35.4%, transparent 36.4%, transparent),
+    radial-gradient(circle at 0% 50%, transparent 19%, var(--bg-color1) 20%, var(--bg-color1) 35.4%, transparent 36.4%, transparent) 0 30px;
+    background-color: var(--bg-color2);
+    background-size: 40px 60px;
+    
+}
+
+.tree {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    padding-right: 100px;
+    padding-bottom: 300px;
+}
+
+.tree ul {
+    padding-left: var(--border-padding);
+    position: relative;
+    transition: all var(--transition-speed);
+    -webkit-transition: all var(--transition-speed);
+    -moz-transition: all var(--transition-speed);
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+
+.tree li {
+    text-align: center;
+    list-style-type: none;
+    position: relative;
+    padding: var(--border-radius) 0 var(--border-radius) var(--border-padding);
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    transition: all var(--transition-speed);
+    -webkit-transition: all var(--transition-speed);
+    -moz-transition: all var(--transition-speed);
+}
+
+/* We will use ::before and ::after to draw the connectors */
+
+.tree li::before, .tree li::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 50%;
+    border-left: var(--border-width) solid var(--border-color);
+    width: var(--border-padding);
+    height: 50%;
+}
+
+.tree li::after {
+    bottom: auto;
+    top: 50%;
+    border-top: var(--border-width) solid var(--border-color);
+}
+
+/* We need to remove left-right connectors from elements without 
+any siblings */
+
+.tree li:only-child::after, .tree li:only-child::before {
+    display: none;
+}
+
+/* Remove space from the top of single children */
+
+.tree li:only-child {
+    padding-left: 0;
+}
+
+/* Remove left connector from first child and 
+right connector from last child */
+
+.tree li:first-child::before, .tree li:last-child::after {
+    border: 0 none;
+}
+
+/* Adding back the vertical connector to the last nodes */
+
+.tree li:last-child::before {
+    border-bottom: var(--border-width) solid var(--border-color);
+    border-radius: 0 0 var(--border-radius) 0;
+    -webkit-border-radius: 0 0 var(--border-radius) 0;
+    -moz-border-radius: 0 0 var(--border-radius) 0;
+}
+
+.tree li:first-child::after {
+    border-radius: 0 0 0 var(--border-radius);
+    -webkit-border-radius: 0 0 0 var(--border-radius);
+    -moz-border-radius: 0 0 0 var(--border-radius);
+}
+
+/* Time to add downward connectors from parents */
+
+.tree ul ul::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    border-top: var(--border-width) solid var(--border-color);
+    width: var(--border-padding);
+    height: 0;
+}
+
+/* Box styles */
+
+.tree li a {
+    border: var(--border-width) solid var(--border-color);
+    padding: 4px 8px;
+    text-decoration: none;
+    color: var(--text-color);
+    background-color: var(--box-color);
+    font-family: arial, verdana, tahoma;
+    font-size: 12px;
+    display: flex-end;
+    -ms-flex-item-align: center;
+    -ms-grid-row-align: center;
+    align-self: center;
+    border-radius: var(--border-radius);
+    -webkit-border-radius: var(--border-radius);
+    -moz-border-radius: var(--border-radius);
+    transition: all var(--transition-speed);
+    -webkit-transition: all var(--transition-speed);
+    -moz-transition: all var(--transition-speed);
+}
+
+/* Time for some hover effects */
+
+/* We will apply the hover effect the the lineage of the element also */
+
+.tree li a:hover, .tree li a:hover+ul li a {
+    background: var(--box-color-hover);
+    color: var(--text-color-hover);
+    border: var(--border-width) solid var(--border-color-hover);
+}
+
+/* Connector styles on hover */
+
+.tree li a:hover+ul li::after, .tree li a:hover+ul li::before, .tree li a:hover+ul::before, .tree li a:hover+ul ul::before {
+    border-color: var(--border-color-hover);
+}
+
+/* Image hover effects */
+
+img {
+    transition: all var(--transition-speed);
+    -webkit-transition: all var(--transition-speed);
+    -moz-transition: all var(--transition-speed);
+    transition-timing-function: ease-out;
+
+    width: auto;
+    height: auto;
+    max-width: 0px;
+    max-height: 0px;
+}
+
+a.parent:hover img {
+    width: auto;
+    height: auto;
+    max-width: 75vw;
+    max-height: 50vh;
+}
+</style>
+</head>
+<body>
+<div class='tree'>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursidae'>
+<b>
+Family
+</b>
+ <i>
+Ursidae
+</i>
+ <small>
+(Bears)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/4/4b/Ursidae-01.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Genus
+</b>
+ <i>
+Ursus
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Brown_bear'>
+<b>
+Species
+</b>
+ <i>
+U. arctos
+</i>
+ <small>
+(Brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/7/71/2010-kodiak-bear-1.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Eurasian_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. arctos
+</i>
+ <small>
+(Eurasian brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/7/7f/European_Brown_Bear.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Cantabrian_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. arctos / pyrenaicus
+</i>
+ <small>
+(Cantabrian brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/f/f7/Ursus_arctos_5.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Kamchatka_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. beringianus
+</i>
+ <small>
+(Kamchatka brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/3/3f/Brown-bear-in-spring.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/East_Siberian_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. collaris
+</i>
+ <small>
+(East Siberian brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/9/9c/%D0%A5%D0%BE%D0%B7%D1%8F%D0%B8%D0%BD_%D0%BC%D0%BE%D1%80%D0%B5%D0%B9.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Gobi_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. gobiensis
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/f/fa/Ursus_arctos_gobiensis.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Grizzly_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. horriblis
+</i>
+ <small>
+(Grizzly bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/a/a9/GrizzlyBearJeanBeaufort.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Himalayan_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. isabellinus
+</i>
+ <small>
+(Himalayan brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/9/96/Medv%C4%9Bd_plav%C3%BD_%28Ursus_arctos_isabellinus%29.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ussuri_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. lasiotus
+</i>
+ <small>
+(Ussuri brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/8/8f/%E3%81%AE%E3%81%BC%E3%82%8A%E3%81%B9%E3%81%A4%E3%82%AF%E3%83%9E%E7%89%A7%E5%A0%B48.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_arctos_marsicanus'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. marsicanus / arctos
+</i>
+ <small>
+(Marsican brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/6/63/Orso_bruno_marsicano.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Kodiak_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. middendorffi / horribilis
+</i>
+ <small>
+(Kodiak bear, Alaska Peninsula brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/7/79/2010-brown-bear.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Tibetan_blue_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. pruinosus
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/a/af/Tibetan_Blue_Bear_-_Ursus_arctos_pruinosus_-_Joseph_Smit_crop.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Stickeen_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. stikeenensis
+</i>
+ <small>
+(Stickeen brown bear)
+</small>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Syrian_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. syriacus
+</i>
+ <small>
+(Syrian brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/c/c2/Ursus_arctos_syriacus.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ungava_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. ungavaesis / horribilis
+</i>
+ <small>
+(Ungava brown bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/6/69/Ungava_Cabot_1910_Cropped.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/California_grizzly_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+† U. a. californicus
+</i>
+ <small>
+(California grizzly bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/f/f6/Ursus_arctos_californicus%2C_Santa_Barbara%2C_Natural_History_Museum.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Atlas_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+† U. a. crowtheri
+</i>
+ <small>
+(Atlas bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/6/6d/Atlasbear.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Mexican_grizzly_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+† U. a. horriblis
+</i>
+ <small>
+(Mexican grizzly bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/en/5/5a/Mexican_grizzly_bear.jpeg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Steppe_brown_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+† U. a. priscus
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/e/e3/Fossil_theriofauna_from_the_Sudety_Mts_%28SW_Poland%29_%28fig._2%29.png'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/American_black_bear'>
+<b>
+Species
+</b>
+ <i>
+U. americanus
+</i>
+ <small>
+(American black bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/0/08/01_Schwarzb%C3%A4r.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_americanus_carlottae'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. carlottae
+</i>
+ <small>
+(Haida Gwaii black bear)
+</small>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Cinnamon_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. cinnamomum
+</i>
+ <small>
+(Cinnamon Bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/9/9c/%22Cinnamon%22_Black_Bear.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Glacier_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. emmonsii
+</i>
+ <small>
+(Glacier bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/3/3e/Glacier_Bear_with_cubs.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Florida_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. floridanus
+</i>
+ <small>
+(Florida black bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/1/14/A_Florida_Black_Bear.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Newfoundland_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. hamiltoni
+</i>
+ <small>
+(Newfoundland black bear)
+</small>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Kermode_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. kermodei
+</i>
+ <small>
+(Kermode bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/2/2e/Spiritbear.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Louisiana_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. luteolus
+</i>
+ <small>
+(Louisiana black bear)
+</small>
+  ⛓<br>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Asian_black_bear'>
+<b>
+Species
+</b>
+ <i>
+U. thibetanus
+</i>
+ <small>
+(Asian black bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/b/b7/Ursus_thibetanus_3_%28Wroclaw_zoo%29.JPG'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Formosan_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. t. formosanus
+</i>
+ <small>
+(Formosan black bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/e/e9/Formosan_Black_Bear.JPG'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Balochistan_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. t. gedrosianus
+</i>
+ <small>
+(Balochistan black bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/5/58/%D8%AE%D8%B1%D8%B3_%D8%B3%DB%8C%D8%A7%D9%87_-_%D8%B1%D9%88%D8%AF%D8%A7%D9%86.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Japanese_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. t. japonicus
+</i>
+ <small>
+(Japanese bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/6/69/Ursus_t._japonicus_Ueno_Zoo.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Himalayan_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. t. laniger
+</i>
+ <small>
+(Himalayan black bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/3/3f/Himalayan_bear.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ussuri_black_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. t. ussuricus
+</i>
+ <small>
+(Ussuri black bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/5/5d/Ursus_thibetanus_ussuricus_Kaliningrad_Zoo.JPG'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Species
+</b>
+ <i>
+U. arctos × U. maritimus
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/ABC_Islands_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+U. a. sitkensis
+</i>
+ <small>
+(ABC Islands bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/a/a3/Sitka_brown_bear.jpg'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Polar_bear'>
+<b>
+Species
+</b>
+ <i>
+U. maritimus
+</i>
+ <small>
+(Polar bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/0/09/Polar_Bear_-_Alaska.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_maritimus_tyrannus'>
+<b>
+Subspecies
+</b>
+ <i>
+† U. m. tyrannus
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/4/41/Ursus_maritimus_tyrannus.jpg'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_deningeri'>
+<b>
+Species
+</b>
+ <i>
+U. deningeri
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/b/ba/Atapuerca_carnivore_skull_2.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_dolinensis'>
+<b>
+Species
+</b>
+ <i>
+U. dolinensis
+</i>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_etruscus'>
+<b>
+Species
+</b>
+ <i>
+U. etruscus
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/2/2b/Ursusetrusc.JPG'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_ingressus'>
+<b>
+Species
+</b>
+ <i>
+U. ingressus
+</i>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_minimus'>
+<b>
+Species
+</b>
+ <i>
+U. minimus
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/2/24/Ursus_minimus_1.JPG'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursus_rossicus'>
+<b>
+Species
+</b>
+ <i>
+U. rossicus
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/7/71/Ursus_rossicus.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Cave_bear'>
+<b>
+Species
+</b>
+ <i>
+† U. spelaeus
+</i>
+ <small>
+(Cave bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/6/6a/Teufelsh%C3%B6hle-H%C3%B6hlenb%C3%A4r-Dreiviertelprofil.jpg'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Genus
+</b>
+ <i>
+† Kretzoiarctos
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Kretzoiarctos'>
+<b>
+Species
+</b>
+ <i>
+† K. beatrix
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/7/71/Kretzoiarctos_beatrix_lower_jaws.png'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Genus
+</b>
+ <i>
+† Zaragocyon
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Zaragocyon'>
+<b>
+Species
+</b>
+ <i>
+† Z. daamsi
+</i>
+ <small>
+(Zaragocyon)
+</small>
+  ⛓<br>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Tribe
+</b>
+ <i>
+Ailuropodini
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ailurarctos'>
+<b>
+Genus
+</b>
+ <i>
+† Ailurarctos
+</i>
+  ⛓<br>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ailuropodinae'>
+<b>
+Subfamily
+</b>
+ <i>
+Ailuropodinae
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/8/8a/Bai_yun_giant_panda.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ailuropoda'>
+<b>
+Genus
+</b>
+ <i>
+Ailuropoda
+</i>
+ <small>
+(Panda)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/e/ed/Panda_ChiangMaiZoo_humarkus.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Giant_panda'>
+<b>
+Species
+</b>
+ <i>
+A. melanoleuca
+</i>
+ <small>
+(Giant panda)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/0/0f/Grosser_Panda.JPG'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Qinling_panda'>
+<b>
+Subspecies
+</b>
+ <i>
+A. m. qinlingensis
+</i>
+ <small>
+(Qinling panda/Brown panda)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/0/01/Quinlingpandabearr.jpg'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ailuropoda_baconi'>
+<b>
+Species
+</b>
+ <i>
+A. baconi
+</i>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ailuropoda_microta'>
+<b>
+Species
+</b>
+ <i>
+A. microta
+</i>
+  ⛓<br>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Miomaci'>
+<b>
+Genus
+</b>
+ <i>
+† Miomaci
+</i>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Tribe
+</b>
+ <i>
+† Indarctini
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Indarctos'>
+<b>
+Genus
+</b>
+ <i>
+† Indarctos
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/0/0a/Indarctos_atticus.jpg'>
+</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Tremarctinae'>
+<b>
+Subfamily
+</b>
+ <i>
+Tremarctinae
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/5/54/Spectacled_Bear_Tennoji_2.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Tremarctos'>
+<b>
+Genus
+</b>
+ <i>
+Tremarctos
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/9/99/Spectacled_Bear_-_Houston_Zoo.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Spectacled_bear'>
+<b>
+Species
+</b>
+ <i>
+T. ornatus
+</i>
+ <small>
+(Spectacled bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/a/a7/Urso_de_%C3%B3culos.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Tremarctos_floridanus'>
+<b>
+Species
+</b>
+ <i>
+† T. floridanus
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/b/b4/Tremarctos_floridanus.jpg'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Plionarctos'>
+<b>
+Genus
+</b>
+ <i>
+Plionarctos
+</i>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Arctodus_simus'>
+<b>
+Genus
+</b>
+ <i>
+† Arctodus
+</i>
+ <small>
+(Short-faced bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/b/b8/ArctodusSimusSkeleton.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Arctotherium'>
+<b>
+Genus
+</b>
+ <i>
+† Arctotherium
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/5/53/Arctotherium.jpg'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Hemicyoninae'>
+<b>
+Subfamily
+</b>
+ <i>
+† Hemicyoninae
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/2/2b/Hemicyon_sansaniensis.JPG'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Cephalogale'>
+<b>
+Genus
+</b>
+ <i>
+† Cephalogale
+</i>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Dinocyon'>
+<b>
+Genus
+</b>
+ <i>
+† Dinocyon
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/b/b1/The_American_Museum_journal_%28c1900-%281918%29%29_%2818133027966%29.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Hemicyon'>
+<b>
+Genus
+</b>
+ <i>
+† Hemicyon
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/2/2b/Hemicyon_sansaniensis.JPG'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Phoberocyon'>
+<b>
+Genus
+</b>
+ <i>
+† Phoberocyon
+</i>
+  ⛓<br>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Phoberogale'>
+<b>
+Genus
+</b>
+ <i>
+† Phoberogale
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/1/1e/Phoberogale_shareri.jpg'>
+</a>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Plithocyon'>
+<b>
+Genus
+</b>
+ <i>
+† Plithocyon
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/e/ea/Plithocyon_armagnacensis.JPG'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursinae'>
+<b>
+Subfamily
+</b>
+ <i>
+Ursinae
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/1/1c/B%C3%A4r_Z%C3%BCri.JPG'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Genus
+</b>
+ <i>
+Melursus
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Sloth_bear'>
+<b>
+Species
+</b>
+ <i>
+M. ursinus
+</i>
+ <small>
+(Sloth bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/6/6c/Sloth_Bear_Washington_DC.JPG'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Sri_Lankan_sloth_bear'>
+<b>
+Subspecies
+</b>
+ <i>
+M. u. inornatus
+</i>
+ <small>
+(Sri Lankan sloth bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/c/cf/Flickr_-_Rainbirder_-_Sri_Lankan_Sloth_Bear_%28Melursus_ursinus_inornatus%29.jpg'>
+</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Genus
+</b>
+ <i>
+Helarctos
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Sun_bear'>
+<b>
+Species
+</b>
+ <i>
+H. malayanus
+</i>
+ <small>
+(Sun bear)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/e/eb/Sun-bear.jpg'>
+</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Subfamily
+</b>
+ <i>
+† Ursavinae
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursavini'>
+<b>
+Tribe
+</b>
+ <i>
+† Ursavini
+</i>
+  ⛓<br>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Ursavus'>
+<b>
+Genus
+</b>
+ <i>
+† Ursavus
+</i>
+  ⛓<br>
+</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Subfamily
+</b>
+ <i>
+† Agriotheriinae
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Agriotheriinae'>
+<b>
+Genus
+</b>
+ <i>
+† Agriotherium
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/9/9a/OR39721-S.jpg'>
+</a>
+</li>
+</ul>
+</li>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Arctoidea'>
+<b>
+Infraorder
+</b>
+ <i>
+Arctoidea
+</i>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/c/cb/Arctoidea.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank' href='https://en.wikipedia.org/wiki/Caniforms'>
+<b>
+Suborder
+</b>
+ <i>
+Caniformia
+</i>
+ <small>
+(Caniforms)
+</small>
+  👁 ⛓<br>
+<img src='https://upload.wikimedia.org/wikipedia/commons/6/63/Caniform_portraits.jpg'>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Order
+</b>
+ <i>
+Carnivora
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Class
+</b>
+ <i>
+Mammalia
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Phylum
+</b>
+ <i>
+Chordata
+</i>
+</a>
+<ul>
+<li>
+<a class='parent' target='_blank'>
+<b>
+Kingdom
+</b>
+ <i>
+Animalia
+</i>
+</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</body>
+</html>
+
