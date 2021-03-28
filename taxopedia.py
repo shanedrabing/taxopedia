@@ -10,6 +10,7 @@ import json
 import re
 import selectors
 import urllib
+import datetime
 from types import FunctionType
 from typing import Any, Dict, Generator, Iterable, List, Tuple
 
@@ -588,8 +589,9 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
     biota_bag = tuple()
     while urls:
         if echo:
+            timestamp = datetime.datetime.strftime(datetime.datetime.now(), "[%H:%M:%S]")
             plural = ("s" if len(urls) > 1 else "")
-            print("Now requesting", len(urls), f"link{plural}...")
+            print(f"{timestamp} Requesting", len(urls), f"link{plural}{'.' * (len(urls) // 20)}")
 
         # requesting and parsing
         requests = list()
@@ -629,7 +631,7 @@ def dump_bag(filename: str, bag: Tuple[Dict]) -> None:
 
     :param filename: A filename for writing
     """
-    with open(filename, "w") as f:
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(tuple(map(lambda x: tuple(x.items()), bag)), f)
 
 

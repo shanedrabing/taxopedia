@@ -8,3 +8,4 @@ dist
 data
 build.sh
 test_script.py
+personal_script.py

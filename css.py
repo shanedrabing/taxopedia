@@ -155,13 +155,15 @@ right connector from last child */
 /* Image hover effects */
 
 img {
-    transition: all 0.75s;
+    /* transition: all 0.75s; */
     max-height: 80vh;
     max-width: 80vw;
-    width: 0px;
+    display: none;
+    /* width: 0px; */
 }
 
 a.parent:hover img {
-    width: 100%;
+    /* width: 100%; */
+    display: inline-block;
 }
 """.strip()
