@@ -83,14 +83,25 @@ class WikiTree:
 
     def __lt__(self, other):
         return (
-            (self.data["RankN"], -self.num_children(), str(self)) <
-            (other.data["RankN"], -other.num_children(), str(other))
+            (-self.data["RankN"], -self.num_children(), str(self)) <
+            (-other.data["RankN"], -other.num_children(), str(other))
         )
 
-    def __iter__(self):
-        yield self.parent_data()
-        for x in self.sorted_children():
-            yield from x
+    def find(self, key):
+        print(self, key)
+        if (self.key == key):
+            return self
+        for x in self.children:
+            if (result := x.find(key)):
+                return result
+
+    def exclude_cousins(self, child=None):
+        if self.parent:
+            self.parent.exclude_cousins(self)
+        if child:
+            for x in self.sorted_children():
+                if (x != child):
+                    self.remove_child(x)
 
     # travel up the root
     def root(self):
@@ -123,6 +134,7 @@ class WikiTree:
 
     # remove a child
     def remove_child(self, child):
+        child.parent = None
         self.children.remove(child)
         self.is_cached = False
 
@@ -185,9 +197,15 @@ class WikiTree:
 
         return string
 
+    def csv_list(self):
+        yield self.parent_data()
+        for x in self.sorted_children():
+            yield from x.csv_list()
+
     # for the to_html method
-    def html_list(self):
+    def html_list(self, tight=False):
         br = tag("br", cap=False)
+        space = (" " if tight else br)
         pre = img = kids = ""
 
         if "IMAGE" in self.data:
@@ -197,17 +215,17 @@ class WikiTree:
             kids = tag("ul", *map(WikiTree.html_list, self.sorted_children()))
 
         rep = (
-            tag("b", self.data['Header']) + br + tag("i", self.data['Label'])
+            tag("b", self.data['Header']) + space + tag("i", self.data['Label'])
         )
         if "Common Name" in self.data:
-            rep += br + tag("small", f"({self.data['Common Name']})")
+            rep += space + tag("small", f"({self.data['Common Name']})")
 
         kwargs = {"class_": "parent", "target": "_blank"}
         if "URL" in self.data:
             pre += f" {Symbols.LINK}"
             kwargs["href"] = self.data["URL"]
         if pre:
-            img = br + pre + img
+            img = space + pre + space + img
 
         return tag("li", tag("a", rep, img, **kwargs), kids)
 
@@ -227,7 +245,7 @@ class WikiTree:
         }
 
         # iterate through parent data
-        for lst in self:
+        for lst in self.csv_list():
             row = dict()
 
             # standard data
@@ -326,6 +344,10 @@ def run_requests(urls: Iterable) -> List[Tuple[str, int, str]]:
 
 
 # FUNCTIONS (HELPERS)
+
+
+def negate(rank: tuple) -> tuple:
+    return (-rank[0], rank[1])
 
 
 def sp(name: str) -> str:
@@ -660,6 +682,7 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
     """
     # for finding already created nodes
     nodes = dict()
+    child = None
 
     # for each organism
     for biota in biota_bag:
