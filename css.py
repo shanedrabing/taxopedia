@@ -39,6 +39,7 @@ body {
     radial-gradient(circle at 0% 50%, transparent 19%, var(--bg-color1) 20%, var(--bg-color1) 35.4%, transparent 36.4%, transparent) 0 30px;
     background-color: var(--bg-color2);
     background-size: 40px 60px;
+    
 }
 
 .tree {
@@ -48,6 +49,8 @@ body {
     -webkit-box-pack: start;
     -ms-flex-pack: start;
     justify-content: flex-start;
+    padding-right: 100px;
+    padding-bottom: 300px;
 }
 
 .tree ul {
@@ -150,13 +153,13 @@ right connector from last child */
 
 .tree li a {
     border: var(--border-width) solid var(--border-color);
-    padding: 5px 10px;
+    padding: 4px 8px;
     text-decoration: none;
     color: var(--text-color);
     background-color: var(--box-color);
     font-family: arial, verdana, tahoma;
     font-size: 12px;
-    display: flex-start;
+    display: flex-end;
     -ms-flex-item-align: center;
     -ms-grid-row-align: center;
     align-self: center;
@@ -191,13 +194,17 @@ img {
     -webkit-transition: all var(--transition-speed);
     -moz-transition: all var(--transition-speed);
     transition-timing-function: ease-out;
-    width: 0px;
+
+    width: auto;
     height: auto;
-    max-height: 50vh;
-    max-width: 75vw;
+    max-width: 0px;
+    max-height: 0px;
 }
 
 a.parent:hover img {
-    width: 100%;
+    width: auto;
+    height: auto;
+    max-width: 75vw;
+    max-height: 50vh;
 }
 """.strip()

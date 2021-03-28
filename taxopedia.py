@@ -87,8 +87,12 @@ class WikiTree:
             (-other.data["RankN"], -other.num_children(), str(other))
         )
 
+    def clone(self):
+        return WikiTree(
+            self.key, self.data.copy(), {x.clone() for x in self.children}
+        )
+
     def find(self, key):
-        print(self, key)
         if (self.key == key):
             return self
         for x in self.children:
@@ -203,16 +207,16 @@ class WikiTree:
             yield from x.csv_list()
 
     # for the to_html method
-    def html_list(self, tight=False):
+    def html_list(self, tight_layout):
         br = tag("br", cap=False)
-        space = (" " if tight else br)
+        space = (" " if tight_layout else br)
         pre = img = kids = ""
 
         if "IMAGE" in self.data:
             pre += f" {Symbols.EYE}"
             img = tag("img", src=self.data['IMAGE'], cap=False)
         if self.children:
-            kids = tag("ul", *map(WikiTree.html_list, self.sorted_children()))
+            kids = tag("ul", *(x.html_list(tight_layout) for x in self.sorted_children()))
 
         rep = (
             tag("b", self.data['Header']) + space + tag("i", self.data['Label'])
@@ -225,7 +229,7 @@ class WikiTree:
             pre += f" {Symbols.LINK}"
             kwargs["href"] = self.data["URL"]
         if pre:
-            img = space + pre + space + img
+            img = space + pre + br + img
 
         return tag("li", tag("a", rep, img, **kwargs), kids)
 
@@ -273,11 +277,11 @@ class WikiTree:
             for row in data:
                 writer.writerow(row)
 
-    def to_html(self, filename):
+    def to_html(self, filename, tight_layout=False):
         with open(filename, "w", encoding="utf-8") as f:
             head = tag("head", tag("style", CSS))
-            tree = tag("div", tag("ul", self.html_list()), class_="tree")
-            body = tag("body", tree)
+            tree = tag("ul", self.html_list(tight_layout))
+            body = tag("body", tag("div", tree, class_="tree"))
             html = tag("html", head, body)
             f.write(f"<!DOCTYPE html>\n{html}\n")
 
