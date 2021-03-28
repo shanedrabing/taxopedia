@@ -59,6 +59,16 @@ tree = taxopedia.make_tree(bag)
 
 ## Example Exports
 
+See `docs` folder for raw files.
+
+### Rendered HTML
+
+![docs/page_Ursidae.png](docs/page_Ursidae.png)
+
+### Tabular Data
+
+[docs/table_Ursidae.csv](docs/table_Ursidae.csv)
+
 ### Plain-Text Dendrogram
 
 ```txt
@@ -155,16 +165,6 @@ Kingdom: Animalia
                         └── Subfamily: † Agriotheriinae
                             └── Genus: † Agriotherium
 ```
-
-### Rendered HTML
-
-![docs/page_Ursidae.png](docs/page_Ursidae.png)
-
-### Tabular Data
-
-See `docs` folder for raw files.
-
-- [docs/table_Ursidae.csv](docs/table_Ursidae.csv)
 
 ## License
 
