@@ -100,6 +100,17 @@ class WikiTree:
             if (result := x.find(key)):
                 return result
 
+    def repair(self, parent=None):
+        if parent:
+            if (parent != self.parent):
+                print("REPAIR PARENT")
+                self.parent = parent
+            if (self.data["RankN"] < parent.data["RankN"]):
+                print("REPAIR RANK")
+        for x in self.children:
+            x.repair(self)
+        return self
+
     def exclude_cousins(self, child=None):
         if self.parent:
             self.parent.exclude_cousins(self)
@@ -109,9 +120,14 @@ class WikiTree:
                     self.remove_child(x)
 
     # travel up the root
-    def root(self):
+    def root(self, start=None):
+        if (start is None):
+            start = self
+        elif (self is start):
+            print(self, self.parent, self.children)
+            raise RecursionError("tree is circular")
         if self.parent:
-            return self.parent.root()
+            return self.parent.root(start)
         return self
 
     def parent_data(self):
@@ -134,6 +150,8 @@ class WikiTree:
 
     # add a child
     def add_child(self, child):
+        if (child is self):
+            return
         child.parent = self
         self.children.add(child)
         self.is_cached = False
@@ -354,6 +372,10 @@ def run_requests(urls: Iterable) -> List[Tuple[str, int, str]]:
 
 def negate(rank: tuple) -> tuple:
     return (-rank[0], rank[1])
+
+
+def hms():
+    return datetime.datetime.strftime(datetime.datetime.now(), "[%H:%M:%S]")
 
 
 def sp(name: str) -> str:
@@ -617,9 +639,9 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
     biota_bag = tuple()
     while urls:
         if echo:
-            timestamp = datetime.datetime.strftime(datetime.datetime.now(), "[%H:%M:%S]")
+            timestamp = hms()
             plural = ("s" if len(urls) > 1 else "")
-            print(f"{timestamp} Requesting", len(urls), f"link{plural}{'.' * (len(urls) // 20)}")
+            print(f"{timestamp} Requesting", len(urls), f"link{plural}.")
 
         # requesting and parsing
         requests = list()
@@ -753,7 +775,7 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
             dct.pop(cn)
 
     # all done
-    root = (child.root() if child else WikiTree(None))
+    root = (child.root().repair() if child else WikiTree(None))
     return root
 
 
