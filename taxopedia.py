@@ -43,7 +43,7 @@ WIKI_PATTERN = re.compile(r"^(/wiki/[A-z#]+)$")
 WIKI_IMG_PATTERN = re.compile(r"/thumb|(/\d+px.*?)$")
 WIKI_SMALL_FONT = re.compile(r"font-size:\s*(\d+)%")
 DIGIT_PATTERN = re.compile(r"(\d+)")
-THUMB_SIZE = (640 * 480)
+THUMB_SIZE = (600 * 400)
 
 
 RANK = [
@@ -375,10 +375,19 @@ def run_requests(urls: Iterable) -> List[Tuple[str, int, str]]:
 
 
 def negate(rank: tuple) -> tuple:
+    """Negative rank (flips number, retains string)
+
+    :param rank: A rank tuple, e.g. (0, "Domain")
+    :returns: The negative numerical rank
+    """
     return (-rank[0], rank[1])
 
 
-def hms():
+def hms() -> str:
+    """Return current hour, minute, second
+
+    :returns: [H:M:S]
+    """
     return datetime.datetime.strftime(datetime.datetime.now(), "[%H:%M:%S]")
 
 
@@ -485,6 +494,83 @@ def make_img_url(src: str) -> Tuple[str, str]:
 
 
 # FUNCTIONS (TAXOPEDIA)
+
+
+def requests_message(n: int) -> None:
+    """Display how many links to check
+
+    :param n: The number of links to process
+    """
+    timestamp = hms()
+    plural = ("s" if n > 1 else "")
+    print(f"{timestamp} Requesting", n, f"link{plural}.")
+
+
+def dump_bag(filename: str, bag: Tuple[Dict]) -> None:
+    """Used for saving a biota bag
+
+    :param filename: A filename for writing
+    """
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(tuple(map(lambda x: tuple(x.items()), bag)), f)
+
+
+def load_bag(filename: str) -> Tuple[Dict]:
+    """Used for loading a biota bag
+
+    :param filename: A filename for reading
+    :returns: A biota bag
+    """
+    with open(filename, "r") as f:
+        biota_bag = tuple()
+        for biota in json.load(f):
+            biota = {
+                tuple(k): tuple(v) if isinstance(v, list) else v
+                for k, v in biota
+            }
+            if (-1, "THUMBSET") in biota:
+                biota[(-1, "THUMBSET")] = {
+                    int(k): v for k, v in biota[(-1, "THUMBSET")].items()
+                }
+            biota_bag += (biota,)
+        return biota_bag
+
+
+def attach_thumbset(biota_bag: Tuple[Dict], replace: bool = False) -> None:
+    """In-place addition of thumbsets to biota dictionaries, given a bag
+
+    :param biota_bag: A list of dictionaries with biota information
+    :param replace: Should existing thumbsets be replaced?
+    """
+    selected = tuple(
+        biota for biota in biota_bag
+        if (-1, "IMAGE") in biota
+        and (replace or (-1, "THUMBSET") not in biota)
+    )
+
+    if (len(selected) == 0):
+        return
+
+    urls = tuple(
+        WIKI_FILE + biota[(-1, "IMAGE")].split("/")[-1]
+        for biota in selected
+    )
+
+    requests_message(len(urls))
+    requests = list()
+    for urls in chunker(urls):
+        requests += run_requests(urls)
+
+    for biota, (url, status, html) in zip(selected, requests):
+        soup = bs4.BeautifulSoup(html, "lxml")
+        links = soup.select(".mw-thumbnail-link")
+        thumbset = {0: biota[(-1, "THUMB")]}
+        for x in links:
+            res = DIGIT_PATTERN.findall(x.text.replace(",", ""))
+            size = functools.reduce(int.__mul__, map(int, res))
+            thumbset[size] = x["href"]
+        if thumbset:
+            biota[(-1, "THUMBSET")] = thumbset
 
 
 def process_request(request: tuple, check: str, comprehensive: bool) -> Tuple[set, bs4.element.Tag]:
@@ -620,12 +706,6 @@ def process_biota_box(box: bs4.element.Tag, url: str) -> dict:
     return biota
 
 
-def requests_message(n):
-    timestamp = hms()
-    plural = ("s" if n > 1 else "")
-    print(f"{timestamp} Requesting", n, f"link{plural}.")
-
-
 def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Dict]:
     """Walk out a iterative search through Wikipedia pages for biota boxes that
     contain `check`, starting at the redirected Wiki page from `term`, and
@@ -682,36 +762,6 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
     if echo:
         print("Done!\n")
     return biota_bag
-
-
-def dump_bag(filename: str, bag: Tuple[Dict]) -> None:
-    """Used for saving a biota bag
-
-    :param filename: A filename for writing
-    """
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(tuple(map(lambda x: tuple(x.items()), bag)), f)
-
-
-def load_bag(filename: str) -> Tuple[Dict]:
-    """Used for loading a biota bag
-
-    :param filename: A filename for reading
-    :returns: A biota bag
-    """
-    with open(filename, "r") as f:
-        biota_bag = tuple()
-        for biota in json.load(f):
-            biota = {
-                tuple(k): tuple(v) if isinstance(v, list) else v
-                for k, v in biota
-            }
-            if (-1, "THUMBSET") in biota:
-                biota[(-1, "THUMBSET")] = {
-                    int(k): v for k, v in biota[(-1, "THUMBSET")].items()
-                }
-            biota_bag += (biota,)
-        return biota_bag
 
 
 def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
@@ -806,38 +856,3 @@ def search(term: str, check: str = None, comprehensive: bool = False, echo: bool
     biota_bag = make_bag(term, check, comprehensive, echo)
     tree = make_tree(biota_bag)
     return (tree, biota_bag)
-
-
-# FUNCTIONS (THUMBNAILS)
-
-
-def attach_thumbset(biota_bag, replace=False):
-    selected = tuple(
-        biota for biota in biota_bag
-        if (-1, "IMAGE") in biota
-        and (replace or (-1, "THUMBSET") not in biota)
-    )
-
-    if (len(selected) == 0):
-        return
-
-    urls = tuple(
-        WIKI_FILE + biota[(-1, "IMAGE")].split("/")[-1]
-        for biota in selected
-    )
-
-    requests_message(len(urls))
-    requests = list()
-    for urls in chunker(urls):
-        requests += run_requests(urls)
-
-    for biota, (url, status, html) in zip(selected, requests):
-        soup = bs4.BeautifulSoup(html, "lxml")
-        links = soup.select(".mw-thumbnail-link")
-        thumbset = {0: biota[(-1, "THUMB")]}
-        for x in links:
-            res = DIGIT_PATTERN.findall(x.text.replace(",", ""))
-            size = functools.reduce(int.__mul__, map(int, res))
-            thumbset[size] = x["href"]
-        if thumbset:
-            biota[(-1, "THUMBSET")] = thumbset
