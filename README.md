@@ -63,9 +63,13 @@ See `docs` folder for raw files.
 
 ### Rendered HTML
 
-![docs/page_Ursidae.png](docs/page_Ursidae.png)
+Click on the image to see a live preview.
+
+[![docs/page_Ursidae.png](docs/page_Ursidae.png)](https://shanedrabing.github.io/taxopedia/page_Ursidae.html)
 
 ### Tabular Data
+
+Click on this link to view a CSV output.
 
 [docs/table_Ursidae.csv](docs/table_Ursidae.csv)
 
