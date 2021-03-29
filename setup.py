@@ -10,7 +10,7 @@ setuptools.setup(
     author_email="shane.drabing@gmail.com",
     packages=setuptools.find_packages(),
     url="https://github.com/shanedrabing/taxopedia",
-    description="Build cladograms from Wikipedia-scraped data.",
+    description="Taxonomic trees (cladograms) from Wikipedia-scraped data.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
