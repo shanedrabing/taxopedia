@@ -13,12 +13,12 @@ import selectors
 import urllib
 import datetime
 from types import FunctionType
-from typing import Any, Dict, Generator, Iterable, List, Tuple
+from typing import Any, Dict, Generator, Iterable, Iterator, List, Tuple
 
 import aiohttp
 import bs4
 
-from css import CSS
+import css
 
 
 # CONSTANTS
@@ -220,6 +220,42 @@ class WikiTree:
         for x in self.sorted_children():
             yield from x.csv_list()
 
+    def csv_preprocess(self):
+        data = list()
+        keys = {
+            "Rank": -3,
+            "Label": -2,
+            "Common Name": -1,
+            "URL": len(RANK) + 0,
+            "IMAGE": len(RANK) + 1,
+            "THUMB": len(RANK) + 2,
+            "THUMBSET": len(RANK) + 3
+        }
+
+        # iterate through parent data
+        for lst in self.csv_list():
+            row = dict()
+
+            # standard data
+            for x in lst:
+                keys[x["Header"]] = x["RankN"]
+                row[x["Header"]] = x["Label"]
+                row["Rank"] = x["Header"]
+                row["Label"] = x["Label"]
+
+            # extra data
+            for k, v in lst[-1].items():
+                if k not in ("Rank", "RankN", "Header", "Label"):
+                    row[k] = v
+
+            data.append(row)
+
+        # ordered columns
+        ordinal = sorted(keys.items(), key=lambda x: x[::-1])
+        fields = [k for (k, v) in ordinal]
+
+        return data, keys, fields
+
     # for the to_html method
     def html_list(self, wide_layout, target):
         br = tag("br", cap=False)
@@ -261,38 +297,7 @@ class WikiTree:
             f.write(self.pretty())
 
     def to_csv(self, filename):
-        data = list()
-        keys = {
-            "Rank": -3,
-            "Label": -2,
-            "Common Name": -1,
-            "URL": len(RANK) + 0,
-            "IMAGE": len(RANK) + 1,
-            "THUMB": len(RANK) + 2,
-            "THUMBSET": len(RANK) + 3
-        }
-
-        # iterate through parent data
-        for lst in self.csv_list():
-            row = dict()
-
-            # standard data
-            for x in lst:
-                keys[x["Header"]] = x["RankN"]
-                row[x["Header"]] = x["Label"]
-                row["Rank"] = x["Header"]
-                row["Label"] = x["Label"]
-
-            # extra data
-            for k, v in lst[-1].items():
-                if k not in ("Rank", "RankN", "Header", "Label"):
-                    row[k] = v
-
-            data.append(row)
-
-        # ordered columns
-        ordinal = sorted(keys.items(), key=lambda x: x[::-1])
-        fields = [k for (k, v) in ordinal]
+        data, keys, fields = self.csv_preprocess()
 
         # write to file
         with open(filename, "w", newline='') as f:
@@ -303,7 +308,8 @@ class WikiTree:
 
     def to_html(self, filename, wide_layout=True, target=THUMB_SIZE):
         with open(filename, "w", encoding="utf-8") as f:
-            head = tag("head", tag("meta", charset="UTF-8"), tag("style", CSS))
+            meta = tag("meta", charset="UTF-8")
+            head = tag("head", meta, tag("style", css.tree))
             tree = tag("ul", self.html_list(wide_layout, target))
             body = tag("body", tag("div", tree, class_="tree"))
             html = tag("html", head, body)
@@ -313,7 +319,7 @@ class WikiTree:
 # FUNCTIONS (ASYNC)
 
 
-def tag(name: str, *args: Any, cap: bool = True, **kwargs: dict) -> str:
+def tag(name: str, *args: Any, cap: bool = True, esc: bool = True, **kwargs: dict) -> str:
     """Makes an HTML tag
 
     :param name: Tag name
@@ -322,14 +328,15 @@ def tag(name: str, *args: Any, cap: bool = True, **kwargs: dict) -> str:
     :param **kwargs: Tag attributes
     :returns: String of a formatted HTML tag
     """
+    escchar = ("\n" if esc else "")
     attrs = "".join(
         f" {k.strip('_')}='{v}'"
         for k, v in kwargs.items()
     )
     start = f"<{name}{attrs}>"
-    middle = "".join(map(str, args)).strip() + ("\n" if args else "")
-    end = (f"</{name}>\n" if cap else "")
-    return f"{start}\n{middle}{end}"
+    middle = "".join(map(str, args)).strip() + (escchar if args else "")
+    end = (f"</{name}>{escchar}" if cap else "")
+    return f"{start}{escchar}{middle}{end}"
 
 
 async def fetch_html(url: str, session: aiohttp.ClientSession) -> Tuple[str, int, str]:

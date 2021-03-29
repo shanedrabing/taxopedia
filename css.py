@@ -1,4 +1,4 @@
-CSS = """
+tree = """
 /* Credits */
 
 /* Ilya Pestov: Original, https://codepen.io/Pestov/pen/BLpgm */
@@ -192,6 +192,7 @@ img {
     -webkit-transition: all var(--transition-speed);
     -moz-transition: all var(--transition-speed);
     transition-timing-function: ease-out;
+    transition-delay: 50ms;
 
     width: auto;
     height: auto;
@@ -202,8 +203,6 @@ img {
 }
 
 a.parent:hover img {
-    width: auto;
-    height: auto;
     max-width: 75vw;
     max-height: 50vh;
     visibility: visible;
