@@ -149,7 +149,7 @@ right connector from last child */
 
 /* Box styles */
 
-.tree li a {
+.tree li div {
     border: var(--border-width) solid var(--border-color);
     padding: 4px 8px;
     text-decoration: none;
@@ -173,7 +173,7 @@ right connector from last child */
 
 /* We will apply the hover effect the the lineage of the element also */
 
-.tree li a:hover, .tree li a:hover+ul li a {
+.tree li div:hover, .tree li div:hover+ul li div {
     background: var(--box-color-hover);
     color: var(--text-color-hover);
     border: var(--border-width) solid var(--border-color-hover);
@@ -181,11 +181,16 @@ right connector from last child */
 
 /* Connector styles on hover */
 
-.tree li a:hover+ul li::after, .tree li a:hover+ul li::before, .tree li a:hover+ul::before, .tree li a:hover+ul ul::before {
+.tree li div:hover+ul li::after, .tree li div:hover+ul li::before, .tree li div:hover+ul::before, .tree li div:hover+ul ul::before {
     border-color: var(--border-color-hover);
 }
 
 /* Image hover effects */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
 img {
     transition: all 0.75s;
@@ -202,7 +207,7 @@ img {
     visibility: hidden;
 }
 
-a.parent:hover img {
+div.parent:hover img {
     transition: all 0.5s;
     transition-delay: 15ms;
     max-width: 75vw;

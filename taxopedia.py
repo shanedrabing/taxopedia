@@ -283,14 +283,23 @@ class WikiTree:
         if "Common Name" in self.data:
             rep += space + tag("small", f"({self.data['Common Name']})")
 
-        kwargs = {"class_": "parent", "target": "_blank"}
+        href = dict()
         if "URL" in self.data:
             pre += f" {Symbols.LINK}"
-            kwargs["href"] = self.data["URL"]
-        if pre:
-            img = space + pre + br + img
+            href = {"href": self.data["URL"], "target": "_blank"}
 
-        return tag("li", tag("a", rep, img, **kwargs), kids)
+        if pre:
+            rep += space + pre + br
+
+        if img:
+            div = tag(
+                "div", rep, tag("a", img, **href),
+                class_="parent", onclick=""
+            )
+        else:
+            div = tag("div", tag("a", rep, **href), onclick="")
+
+        return tag("li", div, kids)
 
     def to_txt(self, filename):
         with open(filename, "w", encoding="utf-8") as f:
