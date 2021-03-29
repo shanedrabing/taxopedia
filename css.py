@@ -13,14 +13,11 @@ CSS = """
     --border-width: 2px;
     --border-padding: 10px;
     --transition-speed: 0.5s;
-
     --bg-color1: hsl(210, 10%, 50%);
     --bg-color2: hsl(210, 10%, 52%);
-
     --box-color: hsl(0, 0%, 75%);
     --border-color: hsl(0, 0%, 75%);
     --text-color: hsl(0, 0%, 25%);
-
     --box-color-hover: hsl(0, 0%, 100%);
     --border-color-hover: hsl(0, 0%, 100%);
     --text-color-hover: hsl(0, 0%, 0%);
@@ -35,11 +32,10 @@ CSS = """
 
 body {
     background:
-    radial-gradient(circle at 100% 50%, transparent 19%, var(--bg-color1) 20%, var(--bg-color1) 35.4%, transparent 36.4%, transparent),
-    radial-gradient(circle at 0% 50%, transparent 19%, var(--bg-color1) 20%, var(--bg-color1) 35.4%, transparent 36.4%, transparent) 0 30px;
+    radial-gradient(circle at 40px 20px, transparent 10px, var(--bg-color1) 10px, var(--bg-color1), 20px, transparent 20px, transparent) 0px 0px,
+    radial-gradient(circle at 0px 20px, transparent 10px, var(--bg-color1) 10px, var(--bg-color1), 20px, transparent 20px, transparent) 0px 30px;
     background-color: var(--bg-color2);
     background-size: 40px 60px;
-    
 }
 
 .tree {
