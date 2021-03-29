@@ -300,7 +300,7 @@ class WikiTree:
         data, keys, fields = self.csv_preprocess()
 
         # write to file
-        with open(filename, "w", newline='') as f:
+        with open(filename, "w", newline='', encoding="utf-8") as f:
             writer = csv.DictWriter(f, fields)
             writer.writeheader()
             for row in data:
@@ -528,7 +528,7 @@ def load_bag(filename: str) -> Tuple[Dict]:
     :param filename: A filename for reading
     :returns: A biota bag
     """
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf-8") as f:
         biota_bag = tuple()
         for biota in json.load(f):
             biota = {
