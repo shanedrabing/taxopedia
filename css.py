@@ -150,6 +150,7 @@ right connector from last child */
 /* Box styles */
 
 .tree li div {
+    cursor: pointer;
     border: var(--border-width) solid var(--border-color);
     padding: 4px 8px;
     text-decoration: none;
