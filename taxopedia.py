@@ -100,17 +100,6 @@ class WikiTree:
             if (result := x.find(key)):
                 return result
 
-    def repair(self, parent=None):
-        if parent:
-            if (parent != self.parent):
-                print("REPAIR PARENT")
-                self.parent = parent
-            if (self.data["RankN"] < parent.data["RankN"]):
-                print("REPAIR RANK")
-        for x in self.children:
-            x.repair(self)
-        return self
-
     def exclude_cousins(self, child=None):
         if self.parent:
             self.parent.exclude_cousins(self)
@@ -124,7 +113,6 @@ class WikiTree:
         if (start is None):
             start = self
         elif (self is start):
-            print(self, self.parent, self.children)
             raise RecursionError("tree is circular")
         if self.parent:
             return self.parent.root(start)
@@ -150,7 +138,7 @@ class WikiTree:
 
     # add a child
     def add_child(self, child):
-        if (child is self):
+        if (self is child):
             return
         child.parent = self
         self.children.add(child)
@@ -158,6 +146,8 @@ class WikiTree:
 
     # remove a child
     def remove_child(self, child):
+        if (self is child):
+            return
         child.parent = None
         self.children.remove(child)
         self.is_cached = False
@@ -234,7 +224,7 @@ class WikiTree:
 
         if "IMAGE" in self.data:
             pre += f" {Symbols.EYE}"
-            img = tag("img", src=self.data['IMAGE'], cap=False)
+            img = tag("img", src=self.data['THUMB'], cap=False)
         if self.children:
             kids = tag("ul", *(x.html_list(tight_layout) for x in self.sorted_children()))
 
@@ -598,7 +588,7 @@ def process_biota_box(box: bs4.element.Tag, url: str) -> dict:
                 continue
 
             # remove notes
-            lst = [x for x in lst if not x.startswith("[")]
+            lst = [x for x in lst if not x.startswith("[") and x.strip()]
             lststr = " ".join(lst)
 
             if any(map(lststr.__contains__, SPECIAL)):
@@ -731,15 +721,14 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
             }
 
             # assign key
-            child_key = label
+            child_key = (header, label)
             if child_key not in nodes:
                 if (rank == extra["Rank"][0]):
                     # representative (has data)
-                    nodes[child_key] = WikiTree(child_key, {**data, **extra})
-                    dct = nodes[child_key].data
+                    nodes[child_key] = WikiTree(label, {**data, **extra})
                 else:
                     # strutural (only has label)
-                    nodes[child_key] = WikiTree(child_key, data)
+                    nodes[child_key] = WikiTree(label, data)
 
             # connect
             if parent_key in nodes:
@@ -775,7 +764,7 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
             dct.pop(cn)
 
     # all done
-    root = (child.root().repair() if child else WikiTree(None))
+    root = (parent.root() if parent else WikiTree(None))
     return root
 
 

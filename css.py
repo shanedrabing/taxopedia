@@ -49,8 +49,10 @@ body {
     -webkit-box-pack: start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    padding-right: 100px;
-    padding-bottom: 300px;
+    padding-top: 25px;
+    padding-left: 10px;
+    padding-right: 75px;
+    padding-bottom: 250px;
 }
 
 .tree ul {
@@ -199,6 +201,8 @@ img {
     height: auto;
     max-width: 0px;
     max-height: 0px;
+    display: block;
+    visibility: hidden;
 }
 
 a.parent:hover img {
@@ -206,5 +210,6 @@ a.parent:hover img {
     height: auto;
     max-width: 75vw;
     max-height: 50vh;
+    visibility: visible;
 }
 """.strip()
