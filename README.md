@@ -40,8 +40,11 @@ bears = cutting.find("Ursidae")
 # trim cousins (other children of all parents)
 bears.exclude_cousins()
 
-# export the root (topmost parent)
-bears.root().to_html("page_Ursidae.html")
+# return to the root (topmost parent)
+cutting = bears.root()
+
+# re-root the tree
+bears = cutting.from_pov("Ursidae")
 ```
 
 ## Saving and Loading Progress
