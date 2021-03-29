@@ -49,8 +49,8 @@ body {
     -webkit-box-pack: start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    padding-top: 25px;
-    padding-left: 10px;
+    padding-top: 50px;
+    padding-left: 25px;
     padding-right: 25px;
     padding-bottom: 250px;
 }

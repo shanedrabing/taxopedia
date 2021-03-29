@@ -303,7 +303,7 @@ class WikiTree:
 
     def to_html(self, filename, wide_layout=True, target=THUMB_SIZE):
         with open(filename, "w", encoding="utf-8") as f:
-            head = tag("head", tag("style", CSS))
+            head = tag("head", tag("meta", charset="UTF-8"), tag("style", CSS))
             tree = tag("ul", self.html_list(wide_layout, target))
             body = tag("body", tag("div", tree, class_="tree"))
             html = tag("html", head, body)
