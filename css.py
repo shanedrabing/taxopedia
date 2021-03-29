@@ -188,11 +188,11 @@ right connector from last child */
 /* Image hover effects */
 
 img {
-    transition: all var(--transition-speed);
-    -webkit-transition: all var(--transition-speed);
-    -moz-transition: all var(--transition-speed);
+    transition: all 0.75s;
+    -webkit-transition: all 0.75s;
+    -moz-transition: all 0.75s;
     transition-timing-function: ease-out;
-    transition-delay: 50ms;
+    transition-delay: 75ms;
 
     width: auto;
     height: auto;
@@ -203,6 +203,8 @@ img {
 }
 
 a.parent:hover img {
+    transition: all 0.5s;
+    transition-delay: 15ms;
     max-width: 75vw;
     max-height: 50vh;
     visibility: visible;
