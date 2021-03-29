@@ -51,7 +51,7 @@ body {
     justify-content: flex-start;
     padding-top: 25px;
     padding-left: 10px;
-    padding-right: 75px;
+    padding-right: 25px;
     padding-bottom: 250px;
 }
 

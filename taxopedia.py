@@ -7,6 +7,7 @@ import asyncio
 import csv
 import functools
 import json
+from os import sep
 import re
 import selectors
 import urllib
@@ -34,12 +35,15 @@ class Symbols:
     TURN = "└"
 
 
+SPECIAL = (Symbols.DAGGER, Symbols.CROSS)
 WIKI_EN = "https://en.wikipedia.org/wiki/"
 WIKI_IMG = "https://upload.wikimedia.org/"
+WIKI_FILE = "https://commons.wikimedia.org/wiki/File:"
 WIKI_PATTERN = re.compile(r"^(/wiki/[A-z#]+)$")
 WIKI_IMG_PATTERN = re.compile(r"/thumb|(/\d+px.*?)$")
 WIKI_SMALL_FONT = re.compile(r"font-size:\s*(\d+)%")
-SPECIAL = (Symbols.DAGGER, Symbols.CROSS)
+DIGIT_PATTERN = re.compile(r"(\d+)")
+THUMB_SIZE = (640 * 480)
 
 
 RANK = [
@@ -217,19 +221,28 @@ class WikiTree:
             yield from x.csv_list()
 
     # for the to_html method
-    def html_list(self, tight_layout):
+    def html_list(self, wide_layout, target):
         br = tag("br", cap=False)
-        space = (" " if tight_layout else br)
+        space = (" " if wide_layout else br)
         pre = img = kids = ""
 
-        if "IMAGE" in self.data:
+        if "THUMB" in self.data:
+            src = self.data["THUMB"]
+            if "THUMBSET" in self.data:
+                src = min(
+                    (abs(k - target), v)
+                    for k, v in self.data["THUMBSET"].items()
+                )[1]
             pre += f" {Symbols.EYE}"
-            img = tag("img", src=self.data['THUMB'], cap=False)
+            img = tag("img", src=src, cap=False)
+
         if self.children:
-            kids = tag("ul", *(x.html_list(tight_layout) for x in self.sorted_children()))
+            kids = tag("ul", *(x.html_list(wide_layout, target)
+                               for x in self.sorted_children()))
 
         rep = (
-            tag("b", self.data['Header']) + space + tag("i", self.data['Label'])
+            tag("b", self.data["Header"]) +
+            space + tag("i", self.data["Label"])
         )
         if "Common Name" in self.data:
             rep += space + tag("small", f"({self.data['Common Name']})")
@@ -255,7 +268,8 @@ class WikiTree:
             "Common Name": -1,
             "URL": len(RANK) + 0,
             "IMAGE": len(RANK) + 1,
-            "THUMB": len(RANK) + 2
+            "THUMB": len(RANK) + 2,
+            "THUMBSET": len(RANK) + 3
         }
 
         # iterate through parent data
@@ -287,10 +301,10 @@ class WikiTree:
             for row in data:
                 writer.writerow(row)
 
-    def to_html(self, filename, tight_layout=False):
+    def to_html(self, filename, wide_layout=True, target=THUMB_SIZE):
         with open(filename, "w", encoding="utf-8") as f:
             head = tag("head", tag("style", CSS))
-            tree = tag("ul", self.html_list(tight_layout))
+            tree = tag("ul", self.html_list(wide_layout, target))
             body = tag("body", tag("div", tree, class_="tree"))
             html = tag("html", head, body)
             f.write(f"<!DOCTYPE html>\n{html}\n")
@@ -606,6 +620,12 @@ def process_biota_box(box: bs4.element.Tag, url: str) -> dict:
     return biota
 
 
+def requests_message(n):
+    timestamp = hms()
+    plural = ("s" if n > 1 else "")
+    print(f"{timestamp} Requesting", n, f"link{plural}.")
+
+
 def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Dict]:
     """Walk out a iterative search through Wikipedia pages for biota boxes that
     contain `check`, starting at the redirected Wiki page from `term`, and
@@ -629,9 +649,7 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
     biota_bag = tuple()
     while urls:
         if echo:
-            timestamp = hms()
-            plural = ("s" if len(urls) > 1 else "")
-            print(f"{timestamp} Requesting", len(urls), f"link{plural}.")
+            requests_message(len(urls))
 
         # requesting and parsing
         requests = list()
@@ -682,13 +700,18 @@ def load_bag(filename: str) -> Tuple[Dict]:
     :returns: A biota bag
     """
     with open(filename, "r") as f:
-        return tuple(
-            {
+        biota_bag = tuple()
+        for biota in json.load(f):
+            biota = {
                 tuple(k): tuple(v) if isinstance(v, list) else v
                 for k, v in biota
             }
-            for biota in json.load(f)
-        )
+            if (-1, "THUMBSET") in biota:
+                biota[(-1, "THUMBSET")] = {
+                    int(k): v for k, v in biota[(-1, "THUMBSET")].items()
+                }
+            biota_bag += (biota,)
+        return biota_bag
 
 
 def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
@@ -783,3 +806,38 @@ def search(term: str, check: str = None, comprehensive: bool = False, echo: bool
     biota_bag = make_bag(term, check, comprehensive, echo)
     tree = make_tree(biota_bag)
     return (tree, biota_bag)
+
+
+# FUNCTIONS (THUMBNAILS)
+
+
+def attach_thumbset(biota_bag, replace=False):
+    selected = tuple(
+        biota for biota in biota_bag
+        if (-1, "IMAGE") in biota
+        and (replace or (-1, "THUMBSET") not in biota)
+    )
+
+    if (len(selected) == 0):
+        return
+
+    urls = tuple(
+        WIKI_FILE + biota[(-1, "IMAGE")].split("/")[-1]
+        for biota in selected
+    )
+
+    requests_message(len(urls))
+    requests = list()
+    for urls in chunker(urls):
+        requests += run_requests(urls)
+
+    for biota, (url, status, html) in zip(selected, requests):
+        soup = bs4.BeautifulSoup(html, "lxml")
+        links = soup.select(".mw-thumbnail-link")
+        thumbset = {0: biota[(-1, "THUMB")]}
+        for x in links:
+            res = DIGIT_PATTERN.findall(x.text.replace(",", ""))
+            size = functools.reduce(int.__mul__, map(int, res))
+            thumbset[size] = x["href"]
+        if thumbset:
+            biota[(-1, "THUMBSET")] = thumbset
