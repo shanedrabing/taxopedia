@@ -9,6 +9,7 @@ import functools
 import json
 from os import sep
 import re
+import time
 import selectors
 import urllib
 import datetime
@@ -66,6 +67,10 @@ RANK = [
 
 
 # CLASSES
+
+
+class Mem:
+    pass
 
 
 class WikiTree:
@@ -325,6 +330,14 @@ class WikiTree:
             f.write(f"<!DOCTYPE html>\n{html}\n")
 
 
+# GLOBALS
+
+mem = Mem()
+mem.n = 1
+mem.rate = 10
+mem.start = None
+mem.end = None
+
 # FUNCTIONS (ASYNC)
 
 
@@ -399,12 +412,14 @@ def negate(rank: tuple) -> tuple:
     return (-rank[0], rank[1])
 
 
-def hms() -> str:
+def hms(offset: float = 0) -> str:
     """Return current hour, minute, second
 
     :returns: [H:M:S]
     """
-    return datetime.datetime.strftime(datetime.datetime.now(), "[%H:%M:%S]")
+    now = datetime.datetime.now()
+    off = datetime.timedelta(seconds=offset)
+    return datetime.datetime.strftime(now + off, "[%H:%M:%S]")
 
 
 def sp(name: str) -> str:
@@ -517,9 +532,19 @@ def requests_message(n: int) -> None:
 
     :param n: The number of links to process
     """
-    timestamp = hms()
+    # determine new rate of download
+    mem.end = time.time()
+    if (mem.end and mem.start):
+        prior = (mem.n / (mem.end - mem.start))
+        mem.rate = (0.8 * mem.rate) + (0.2 * prior)
+    mem.n = n
+    mem.start = time.time()
+
+    # print message
+    now = hms()
+    then = hms(n / mem.rate)
     plural = ("s" if n > 1 else "")
-    print(f"{timestamp} Requesting", n, f"link{plural}.")
+    print(f"{now} ETA {then} Requesting {n} link{plural}.")
 
 
 def dump_bag(filename: str, bag: Tuple[Dict]) -> None:
@@ -742,6 +767,7 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
     seen = set()
 
     # loop
+    rate = 1
     biota_bag = tuple()
     while urls:
         if echo:
@@ -766,8 +792,8 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
                     scraper = process_request_closure(check, comprehensive)
                     if echo:
                         print(
-                            f"Now checking for \"{check}\"\n" +
-                            "  (otherwise, set `check` parameter manually)"
+                            f"\nNow checking for \"{check}\"\n" +
+                            "  (otherwise, set `check` parameter manually)\n"
                         )
 
         # only need to check new links
@@ -853,7 +879,7 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
             dct.pop(cn)
 
     # all done
-    root = (parent.root() if parent else WikiTree(None))
+    root = (child.root() if child else WikiTree(None))
     return root
 
 
