@@ -6,6 +6,6 @@
 build
 dist
 data
-build.sh
+build.*
 test_script.py
 personal_script.py
