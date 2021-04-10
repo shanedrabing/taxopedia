@@ -116,6 +116,14 @@ class WikiTree:
             for x in self.sorted_children():
                 if (x != child):
                     self.remove_child(x)
+    
+    def exclude_rank_below(self, rank):
+        rank = (RANK.index(rank) if isinstance(rank, str) else rank)
+        for x in self.sorted_children():
+            if (x.data["RankN"] > rank):
+                self.remove_child(x)
+            else:
+                x.exclude_rank_below(rank)
 
     # travel up the root
     def root(self, start=None):
