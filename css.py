@@ -192,7 +192,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
+""".lstrip()
 
+dynamic = """
 img {
     transition: all 0.75s;
     -webkit-transition: all 0.75s;
@@ -215,4 +217,14 @@ div.parent:hover img {
     max-height: 50vh;
     visibility: visible;
 }
-""".strip()
+""".rstrip()
+
+block = """
+img {
+    display: none;
+}
+
+div.parent:hover img {
+    display: block;
+}
+""".rstrip()

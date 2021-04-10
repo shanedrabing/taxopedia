@@ -270,12 +270,15 @@ class WikiTree:
         if "THUMB" in self.data:
             src = self.data["THUMB"]
             if "THUMBSET" in self.data:
-                src = min(
-                    (abs(k - target), v)
-                    for k, v in self.data["THUMBSET"].items()
-                )[1]
+                try:
+                    src = min(
+                        (abs(k - target), v)
+                        for k, v in self.data["THUMBSET"].items()
+                    )[1]
+                except ValueError:
+                    pass
             pre += f" {Symbols.EYE}"
-            img = tag("img", src=src, cap=False)
+            img = tag("img", src=src, loading="lazy", cap=False)
 
         if self.children:
             kids = tag("ul", *(x.html_list(wide_layout, target)
@@ -320,10 +323,10 @@ class WikiTree:
             for row in data:
                 writer.writerow(row)
 
-    def to_html(self, filename, wide_layout=True, target=THUMB_SIZE):
+    def to_html(self, filename, wide_layout=True, performance_mode=False, target=THUMB_SIZE):
         with open(filename, "w", encoding="utf-8") as f:
             meta = tag("meta", charset="UTF-8")
-            head = tag("head", meta, tag("style", css.tree))
+            head = tag("head", meta, tag("style", css.tree + (css.block if performance_mode else css.dynamic)))
             tree = tag("ul", self.html_list(wide_layout, target))
             body = tag("body", tag("div", tree, class_="tree"))
             html = tag("html", head, body)
@@ -536,7 +539,7 @@ def requests_message(n: int) -> None:
     mem.end = time.time()
     if (mem.end and mem.start):
         prior = (mem.n / (mem.end - mem.start))
-        mem.rate = (0.8 * mem.rate) + (0.2 * prior)
+        mem.rate = (0.4 * mem.rate) + (0.6 * prior)
     mem.n = n
     mem.start = time.time()
 
