@@ -6,6 +6,7 @@ __email__ = "shane.drabing@gmail.com"
 import asyncio
 import csv
 import functools
+from io import RawIOBase
 import json
 from os import sep
 import re
@@ -296,7 +297,7 @@ class WikiTree:
             tag("b", self.data["Header"]) +
             space + tag("i", self.data["Label"])
         )
-        if "Common Name" in self.data:
+        if ("Common Name" in self.data):
             rep += space + tag("small", f"({self.data['Common Name']})")
 
         href = dict()
@@ -625,32 +626,38 @@ def attach_thumbset(biota_bag: Tuple[Dict], replace: bool = False) -> None:
             biota[(-1, "THUMBSET")] = thumbset
 
 
-def process_request(request: tuple, check: str, comprehensive: bool) -> Tuple[set, bs4.element.Tag]:
+def process_request(request: tuple, limit_taxon: str, comprehensive: bool) -> Tuple[set, bs4.element.Tag]:
     """Given a single Wikipedia page `request` (url, status, html); find the
     biota box, if applicable, and all links on either the whole page if
-    `comprehensive`, or just the biota box. If using the `check` parameter,
+    `comprehensive`, or just the biota box. If using the `limit_taxon` parameter,
     then it must be found in the biota box, otherwise the function with return
     early.
 
     :param request: URL, status code, and HTML of a single Wikipedia page
-    :param check: Taxon checked within the biota box (keeps searches small)
+    :param limit_taxon: Taxon checked within the biota box (keeps searches small)
     :param comprehensive: Should the search include all page links?
     :returns: A set of links to check next and the biota box
     """
+    # must have valid request
+    if request is None:
+        return (set(), None)
+
     # unpack variable
     (url, status, html) = request
 
     # check status code; for biota box
     if (status != 200 or "biota" not in html):
-        return set(), None
+        return (set(), None)
 
     # parse html
     soup = bs4.BeautifulSoup(html, "lxml")
     box = soup.select_one(".biota")
 
     # must have biota box
-    if (not box or (isinstance(check, str) and check not in str(box))):
-        return set(), None
+    if (not box):
+        return (set(), None)
+    elif (isinstance(limit_taxon, str) and limit_taxon not in str(box)):
+        return (set(), box)
 
     # get links from biota box, and body if comprehensive
     links = box.select("a")
@@ -665,15 +672,15 @@ def process_request(request: tuple, check: str, comprehensive: bool) -> Tuple[se
     return (newurls, box)
 
 
-def process_request_closure(check: str, comprehensive: bool) -> FunctionType:
+def process_request_closure(limit_taxon: str, comprehensive: bool) -> FunctionType:
     """For use in functional applications (map, filter, etc.)
 
-    :param check: Taxon checked within the biota box (keeps searches small)
+    :param limit_taxon: Taxon checked within the biota box (keeps searches small)
     :param comprehensive: Should the search include all page links?
     :returns: A function (process_request), preloaded with parameters
     """
     def f(request: tuple) -> Tuple[set, bs4.element.Tag]:
-        return process_request(request, check, comprehensive)
+        return process_request(request, limit_taxon, comprehensive)
     return f
 
 
@@ -758,13 +765,13 @@ def process_biota_box(box: bs4.element.Tag, url: str) -> dict:
     return biota
 
 
-def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Dict]:
+def make_bag(term: str, limit_taxon: str, limit_rank: str, comprehensive: bool, echo: bool) -> Tuple[Dict]:
     """Walk out a iterative search through Wikipedia pages for biota boxes that
-    contain `check`, starting at the redirected Wiki page from `term`, and
+    contain `limit_taxon`, starting at the redirected Wiki page from `term`, and
     using all the page links if `comprehensive` is True
 
     :param term: Starting term, usually suffix of "en.wikipedia.org/wiki/?"
-    :param check: Taxon checked within the biota box (keeps searches small)
+    :param limit_taxon: Taxon checked within the biota box (keeps searches small)
     :param comprehensive: Should the search include all page links?
     :param echo: Should the function print updates?
     :returns: The parsed results of all the visited pages
@@ -772,13 +779,14 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
     # starting off
     hold = make_wiki_url(term)
     urls = {hold}
-    scraper = process_request_closure(check, comprehensive)
+    scraper = process_request_closure(limit_taxon, comprehensive)
+    if (limit_rank is None):
+        limit_rank = RANK[-1]
 
     # checked links
     seen = set()
 
     # loop
-    rate = 1
     biota_bag = tuple()
     while urls:
         if echo:
@@ -798,17 +806,22 @@ def make_bag(term: str, check: str, comprehensive: bool, echo: bool) -> Tuple[Di
                 biota_bag += (biota,)
 
                 # update restriction
-                if (len(urls) == 1) and (check is None):
-                    check = biota[biota[(-1, "Rank")]]
-                    scraper = process_request_closure(check, comprehensive)
+                if (len(urls) == 1) and (limit_taxon is None):
+                    limit_taxon = biota[biota[(-1, "Rank")]]
+                    scraper = process_request_closure(limit_taxon, comprehensive)
                     if echo:
                         print(
-                            f"\nNow checking for \"{check}\"\n" +
-                            "  (otherwise, set `check` parameter manually)\n"
+                            f"\nNow limiting to \"{limit_taxon}\"\n" +
+                            "  (otherwise, set `limit_taxon` parameter manually)\n"
                         )
 
+        # only include new urls from valid ranks
+        urls = set()
+        for biota, url_set in zip(biota_bag, url_sets):
+            if (biota[(-1, "Rank")][0] < RANK.index(limit_rank)):
+                urls |= url_set
+
         # only need to check new links
-        urls = functools.reduce(set.union, url_sets)
         urls -= seen
         seen |= urls
 
@@ -894,18 +907,19 @@ def make_tree(biota_bag: Tuple[Dict]) -> WikiTree:
     return root
 
 
-def search(term: str, check: str = None, comprehensive: bool = False, echo: bool = True) -> Tuple[WikiTree, Tuple[Dict]]:
+def search(term: str, limit_taxon: str = None, limit_rank: str=None, comprehensive: bool = False, echo: bool = True) -> Tuple[WikiTree, Tuple[Dict]]:
     """Starting with a single search `term`, grow a WikiTree through an
     iterative web-crawler; if the search is `comprehensive`, it will include
-    all the links on each page; if `check` is set to a specific taxon, it must
+    all the links on each page; if `limit_taxon` is set to a specific taxon, it must
     be found in a biota box for that box to be considered valid
 
     :param term: Starting term, usually suffix of "en.wikipedia.org/wiki/?"
-    :param check: Taxon checked within the biota box (keeps searches small)
+    :param limit_taxon: Taxon checked within the biota box (keeps searches small)
+    :param limit_rank: Will only walk new links if rank is at least equal to this.
     :param comprehensive: Should the search include all page links?
     :param echo: Should the function print updates?
     :returns: A WikiTree and the parsed results of all the visited pages
     """
-    biota_bag = make_bag(term, check, comprehensive, echo)
+    biota_bag = make_bag(term, limit_taxon, limit_rank, comprehensive, echo)
     tree = make_tree(biota_bag)
     return (tree, biota_bag)
