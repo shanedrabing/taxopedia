@@ -271,7 +271,7 @@ class WikiTree:
         return data, keys, fields
 
     # for the to_html method
-    def html_list(self, wide_layout, target):
+    def html_list(self, wide_layout, num_common_names, target):
         br = tag("br", cap=False)
         space = (" " if wide_layout else br)
         pre = img = kids = ""
@@ -290,7 +290,7 @@ class WikiTree:
             img = tag("img", src=src, loading="lazy", cap=False)
 
         if self.children:
-            kids = tag("ul", *(x.html_list(wide_layout, target)
+            kids = tag("ul", *(x.html_list(wide_layout, num_common_names, target)
                                for x in self.sorted_children()))
 
         rep = (
@@ -298,7 +298,9 @@ class WikiTree:
             space + tag("i", self.data["Label"])
         )
         if ("Common Name" in self.data):
-            rep += space + tag("small", f"({self.data['Common Name']})")
+            cn = self.data['Common Name']
+            lim = ", ".join(cn.strip("()").split(", ")[:num_common_names])
+            rep += space + tag("small", f"({lim})")
 
         href = dict()
         if "URL" in self.data:
@@ -332,11 +334,11 @@ class WikiTree:
             for row in data:
                 writer.writerow(row)
 
-    def to_html(self, filename, wide_layout=True, performance_mode=False, target=THUMB_SIZE):
+    def to_html(self, filename, wide_layout=True, num_common_names = 3, performance_mode=False, target=THUMB_SIZE):
         with open(filename, "w", encoding="utf-8") as f:
             meta = tag("meta", charset="UTF-8")
             head = tag("head", meta, tag("style", css.tree + (css.block if performance_mode else css.dynamic)))
-            tree = tag("ul", self.html_list(wide_layout, target))
+            tree = tag("ul", self.html_list(wide_layout, num_common_names, target))
             body = tag("body", tag("div", tree, class_="tree"))
             html = tag("html", head, body)
             f.write(f"<!DOCTYPE html>\n{html}\n")
@@ -548,7 +550,7 @@ def requests_message(n: int) -> None:
     mem.end = time.time()
     if (mem.end and mem.start):
         prior = (mem.n / (mem.end - mem.start))
-        mem.rate = (0.4 * mem.rate) + (0.6 * prior)
+        mem.rate = (0.2 * mem.rate) + (0.8 * prior)
     mem.n = n
     mem.start = time.time()
 
@@ -818,7 +820,7 @@ def make_bag(term: str, limit_taxon: str, limit_rank: str, comprehensive: bool, 
         # only include new urls from valid ranks
         urls = set()
         for biota, url_set in zip(biota_bag, url_sets):
-            if (biota[(-1, "Rank")][0] < RANK.index(limit_rank)):
+            if (biota[(-1, "Rank")][0] <= RANK.index(limit_rank)):
                 urls |= url_set
 
         # only need to check new links
