@@ -23,7 +23,7 @@ import bs4
 import css
 
 
-# CONSTANTS
+# ENUMS
 
 
 class Symbols:
@@ -37,6 +37,9 @@ class Symbols:
     TURN = "└"
 
 
+# CONSTANTS
+
+
 SPECIAL = (Symbols.DAGGER, Symbols.CROSS)
 WIKI_EN = "https://en.wikipedia.org/wiki/"
 WIKI_IMG = "https://upload.wikimedia.org/"
@@ -48,7 +51,7 @@ DIGIT_PATTERN = re.compile(r"(\d+)")
 THUMB_SIZE = (600 * 400)
 
 
-RANK = [
+RANK = (
     "Domain", "Subdomain", "Realm", "Subrealm", "Hyperkingdom",
     "Superkingdom", "Kingdom", "Subkingdom", "Infrakingdom", "Parvkingdom",
     "Superphylum", "Phylum", "Subphylum", "Infraphylum", "Microphylum",
@@ -64,7 +67,7 @@ RANK = [
     "Subtribe", "Infratribe", "Genus", "Subgenus", "Section", "Subsection",
     "Series", "Subseries", "Superspecies", "Species", "Subspecies", "Hybrid",
     "Variety", "Subvariety", "Form", "Subform"
-]
+)
 
 
 # CLASSES
@@ -346,11 +349,13 @@ class WikiTree:
 
 # GLOBALS
 
+
 mem = Mem()
 mem.n = 1
 mem.rate = 10
 mem.start = None
 mem.end = None
+
 
 # FUNCTIONS (ASYNC)
 
