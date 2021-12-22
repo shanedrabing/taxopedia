@@ -2,6 +2,10 @@
 
 Build taxonomic trees (cladograms) from Wikipedia-scraped data.
 
+[![docs/page_Ursidae.png](docs/page_Ursidae.png)](https://shanedrabing.github.io/taxopedia/page_Ursidae.html)
+
+*Click on the image to see a live preview.*
+
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install
@@ -63,12 +67,6 @@ tree = taxopedia.make_tree(bag)
 ## Example Exports
 
 See `docs` folder for raw files.
-
-### Rendered HTML
-
-Click on the image to see a live preview.
-
-[![docs/page_Ursidae.png](docs/page_Ursidae.png)](https://shanedrabing.github.io/taxopedia/page_Ursidae.html)
 
 ### Tabular Data
 
